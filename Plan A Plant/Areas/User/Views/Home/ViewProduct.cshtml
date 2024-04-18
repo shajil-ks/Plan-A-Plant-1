@@ -1,0 +1,105 @@
+﻿@model ShoppingCart
+@using System.Globalization
+
+<form method="post">
+    <input hidden asp-for="ProductId"/>
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-primary bg-gradient text-light py-4">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h3 class="text-white text-uppercase"> @Model.Product.Name</h3 >
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="py-3">
+                <div class="row">
+                    <div class="col-6 col-md-2 offset-lg-1 pb-1">
+                        <a asp-action="Index" class="btn btn-outline-dark bg-gradient mb-5 fw-semibold btn-sm text-uppercase">
+                            <small>Back to Home</small>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-12 col-lg-3 offset-lg-1 text-center mb-3">
+                        @if (Model.Product.ProductImages != null && Model.Product.ProductImages.Count > 0)
+                        {
+                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    @foreach (var imagewithIndex in Model.Product.ProductImages
+                                   .Select((image, index) => new { Image = image, Index = index }))
+                                    {
+                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@imagewithIndex.Index" class="@(imagewithIndex.Index==0?"active":"")" aria-current="true" aria-label="Slide 1"></button>
+
+                                    }
+
+                                </div>
+                                <div class="carousel-inner">
+                                    @foreach (var imagewithIndex in Model.Product.ProductImages
+                                   .Select((image, index) => new { Image = image, Index = index }))
+                                    {
+                                        <div class="@(imagewithIndex.Index==0?"carousel-item active":"carousel-item")">
+                                            <img src="@(imagewithIndex.Image.ImageUrl)" class="d-block w-100" alt="...">
+                                        </div>
+                                    }
+
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        }
+
+                    </div>
+                                     
+
+                    <div class="col-12 col-lg-6 offset-lg-1">
+                        <div class="col-12 col-md-6 pb-4">
+                            <span class="badge">@Model.Product.Category.Name</span>
+                        </div>
+
+                        <div class="row text-center ps-2">
+                            <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
+                                <div>Price: @Model.Product.Price.ToString("c", new CultureInfo("en-IN"))</div>
+                            </div>
+                        </div>
+
+                        <div class="row pl-2 my-3">
+                            <p class="text-secondary lh-sm">@Model.Product.Description</p>
+                        </div>
+                        <div class="row ps-2">
+                            <p id="errorMessage" class="card-title text-danger"></p>
+                        </div>
+
+                        <div class="row pl-2 mb-3">
+                            <div class="col-md-4">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text bg-primary text-white border-0 fw-semibold" id="inputGroup-sizing-default">Count</span>
+                                    <input asp-for="Count" type="number" value="1" class="form-control text-end" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" />
+                                    <span class="text-danger fw-bolder">@TempData["StockErorr"]</span>
+                                    <span class="text-danger fw-bolder">@TempData["LimitErorr"]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-6 pb-1">
+                                <button type="submit" 
+                                class="btn btn-primary bg-gradient w-100 py-2 text-uppercase fw-semibold">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+

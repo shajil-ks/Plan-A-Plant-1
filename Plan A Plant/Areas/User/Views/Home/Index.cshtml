@@ -1,0 +1,226 @@
+﻿@model IEnumerable<Product>
+@using System.Globalization
+
+@{
+    // Filter products to only include those with active categories
+    var activeProducts = Model.Where(product => product.Category.IsActive);
+}
+
+
+<form method="get" action="@Url.Action("Search", "Home", new { area = "User" })" class="d-flex justify-content-end">
+    <div class="form-group rounded-pill">
+        <input type="text" id="search" name="searchString" class="form-control rounded-pill" />
+    </div>
+    <button type="submit" class="btn btn-primary h-25 rounded-pill mx-1 m">Search</button>
+</form>
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-3 border-end border-gray">
+            <h5>Filter</h5>
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select id="category" class="form-control">
+                    <option value="">All</option>
+                    @foreach (var category in Model.Select(p => p.Category.Name).Distinct())
+                    {
+                        <option value="@category">@category</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price Range:</label>
+                <select id="price" class="form-control">
+                    <option value="">All</option>
+                    <option value="250-500">250 - 500</option>
+                    <option value="500-1000">500 - 1000</option>
+                    <!-- Add more options as needed -->
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="d-flex justify-content-md-start  mb-6">
+                <div class="form-group">
+                    <label for="sortBy">Sort By:</label>
+                    <select id="sortBy" class="form-control">
+                        <option value="name">Select Option</option>
+                        <option value="priceLowToHigh">Price: Low to High</option>
+                        <option value="priceHighToLow">Price: High to Low</option>
+                        <option value="priceHighToLow">Aa to Zz</option>
+                        <option value="priceHighToLow">Zz to Aa</option>
+                        <!-- Add more options for sorting as needed -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="row pb-4 bg-light-gray p-3" id="product-list">
+                @foreach (var product in activeProducts)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4 product-card" data-category="@product.Category.Name" data-price="@product.Price">
+                        <div class="card border-0 shadow border-top border-5 rounded">
+                            <div class="card-body">
+                                @if (product.ProductImages != null && product.ProductImages.Any())
+                                {
+                                    <a asp-action="Details" asp-controller="Home" asp-route-id="@product.Id">
+                                        <img src="@product.ProductImages.FirstOrDefault().ImageUrl" class="card-img-top img-fluid" alt="Product">
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Details" asp-controller="Home" asp-route-id="@product.Id">
+                                        <img src="https://placehold.co/300x200" class="card-img-top img-fluid" alt="Product">
+                                    </a>
+                                }
+                                <div class="p-lg-1">
+                                    <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@product.Name</p>
+                                </div>
+                                <div class="p-lg-1">
+                                    <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@product.Price.ToString("c", new CultureInfo("en-IN"))</p>
+                                </div>
+                                <div>
+                                    @if (product.Qty < 1)
+                                    {
+                                        <a asp-action="ViewProduct" asp-route-id="@product.Id" class="btn btn-danger bg-gradient border-0 form-control">Out Of Stock</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="ViewProduct" asp-route-id="@product.Id" class="btn btn-primary bg-gradient border-0 form-control">View Product</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center mb-5">
+        <ul class="pagination">
+            @if (Model.Any())
+            {
+                var currentPage = 1; // Initial page
+                var itemsPerPage = 6; // Number of items per page
+                var totalProducts = Model.Count(); // Total number of products
+                var totalPages = (int)Math.Ceiling(totalProducts / (double)itemsPerPage); // Calculate total pages
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" href="#" onclick="changePage(@currentPage - 1)">Previous</a>
+                </li>
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" href="#" onclick="changePage(@i)">@i</a>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" href="#" onclick="changePage(@currentPage + 1)">Next</a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        var currentPage = 1; // Initial page
+        var itemsPerPage = 6; // Number of items per page
+        var totalProducts = @Model.Count(); // Total number of products
+        var totalPages = Math.ceil(totalProducts / itemsPerPage); // Calculate total pages
+
+        $(document).ready(function () {
+            $('#category, #price, #sortBy').change(function () {
+                filterProducts();
+                currentPage = 1; // Reset current page when filters change
+            });
+
+            filterProducts(); // Initial filtering
+        });
+
+        function changePage(page) {
+            if (page < 1 || page > totalPages || page === currentPage) {
+                return;
+            }
+
+            currentPage = page;
+            filterProducts();
+        }
+
+        function sortProducts() {
+            var sortBy = $('#sortBy').val();
+
+            if (sortBy === "priceLowToHigh") {
+                activeProducts = activeProducts.sort((a, b) => a.Price - b.Price);
+            } else if (sortBy === "priceHighToLow") {
+                activeProducts = activeProducts.sort((a, b) => b.Price - a.Price);
+            } else if (sortBy === "nameAscending") {
+                activeProducts = activeProducts.sort((a, b) => a.Name.localeCompare(b.Name));
+            } else if (sortBy === "nameDescending") {
+                activeProducts = activeProducts.sort((a, b) => b.Name.localeCompare(a.Name));
+            }
+
+        }
+
+            function filterProducts() {
+                var selectedCategory = $('#category').val();
+                var selectedPriceRange = $('#price').val();
+
+                $('.product-card').each(function () {
+                    var productCategory = $(this).data('category');
+                    var productPrice = parseFloat($(this).data('price'));
+
+                    var showProduct = true;
+
+                    if (selectedCategory && selectedCategory !== "" && selectedCategory !== productCategory) {
+                        showProduct = false;
+                    }
+
+                    if (selectedPriceRange && selectedPriceRange !== "" && !isPriceInRange(productPrice, selectedPriceRange)) {
+                        showProduct = false;
+                    }
+
+                    var productIndex = $(this).index() + 1; // Index of current product
+                    var startIndex = (currentPage - 1) * itemsPerPage + 1; // Calculate start index for current page
+                    var endIndex = Math.min(startIndex + itemsPerPage - 1, totalProducts); // Calculate end index for current page
+
+                    if (productIndex < startIndex || productIndex > endIndex) {
+                        showProduct = false;
+                    }
+
+                    if (showProduct) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+                updatePagination();
+            }
+
+            function updatePagination() {
+                $('.pagination').empty(); // Clear existing pagination links
+
+                for (var i = 1; i <= totalPages; i++) {
+                    $('.pagination').append(`
+                                            <li class="page-item ${currentPage === i ? 'active' : ''}">
+                                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                                            </li>
+                                        `);
+                }
+            }
+
+            function isPriceInRange(price, range) {
+                var rangeValues = range.split('-');
+                var minPrice = parseFloat(rangeValues[0]);
+                var maxPrice = parseFloat(rangeValues[1]);
+
+                return price >= minPrice && price <= maxPrice;
+            }
+    </script>
+}
+
+
