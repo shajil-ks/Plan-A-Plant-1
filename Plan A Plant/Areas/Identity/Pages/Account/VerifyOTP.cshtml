@@ -1,0 +1,46 @@
+﻿@page "{handler?}"
+@model Plan_A_Plant.Identity.Pages.Account.VerifyOTPModel
+@{
+    ViewData["Title"] = "Verify OTP";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header text-center bg-primary text-white">
+                    <h2>@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="OnPostAsync">
+                        <input type="hidden" name="email" value="@Model.Email" />
+                        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+
+                        <div class="form-group">
+                            <label asp-for="TwoStepModel.TwoFactorCode" class="form-label">Enter OTP Here</label>
+                            <input asp-for="TwoStepModel.TwoFactorCode" class="form-control" placeholder="Enter your OTP" />
+                            <span asp-validation-for="TwoStepModel.TwoFactorCode" class="text-danger"></span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Request.Query["errorMessage"]))
+                        {
+                            <div class="alert alert-danger mt-3" role="alert">
+                                @Request.Query["errorMessage"]
+                            </div>
+                        }
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Verify OTP</button>
+                    </form>
+
+                    <hr class="my-4" />
+
+                    <form method="post" asp-page-handler="ResendOTP">
+                        <input type="hidden" name="email" value="@Model.Email" />
+                        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+
+                        <button type="submit" class="btn btn-secondary w-100">Resend OTP</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

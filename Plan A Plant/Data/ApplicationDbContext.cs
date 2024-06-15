@@ -20,7 +20,13 @@ namespace Plan_A_Plant.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         public DbSet<OrderHeader> OrderHeaders { get; set; }
-        public DbSet<OrderDetail> OrderDetails { get; set; }    
+        public DbSet<OrderDetail> OrderDetails { get; set; }   
+        
+        public DbSet<WishList> WishLists { get; set; }
+
+        public DbSet<Coupon> Coupons { get; set; }
+
+        public DbSet<Offer> Offers { get; set; }
 
         //to seed data to caterory
         protected override void OnModelCreating(ModelBuilder modelBuilder)

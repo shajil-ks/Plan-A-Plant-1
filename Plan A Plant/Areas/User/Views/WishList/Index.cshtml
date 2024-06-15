@@ -1,0 +1,91 @@
+﻿@model IEnumerable<WishList>
+@using System.Globalization
+
+
+@if (!Model.Any())
+{
+    <div class="empty-wishlist">
+        <img src="~/images/other/wishlist empty.png" alt="Empty Wishlist" class="img-fluid">
+        <div class="d-grid gap-2">
+            <a class="btn btn-primary" href="@Url.Action("Index", "Home", new { area = "" })" role="button">Continue Shopping</a>
+        </div>
+    </div>
+}
+else
+{
+    <section class="content-main">
+        <form method="post">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title text-center card-title">Wish List</h2>
+                    <p class="text-center mt-2">All Your Favorites Are Here.</p>
+                </div>
+            </div>
+            <div class="container border mt-4">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col">
+                            <div class="card h-100 shadow">
+                                <div class="position-relative">
+                                    <button type="submit" formaction="@Url.Action("RemoveFromWishlist", "WishList", new { id = item.WishListId })" class="btn  btn-sm position-absolute top-0 end-0">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                    <div class="card-body">
+                                        @if (item.Product.ProductImages != null && item.Product.ProductImages.Any())
+                                        {
+                                            <a href="#" class="img-fluid"></a>
+                                            <img src="@item.Product.ProductImages.FirstOrDefault().ImageUrl" alt="Product" class="card-img-top">
+                                            
+                                        }
+                                        else
+                                        {
+                                            <a href="#" class="img-fluid">
+                                                <img src="https://placehold.co/300x200" alt="Product" class="card-img-top">
+                                            </a>
+                                        }
+
+                                        <h5 class="card-title text-center text-capitalize mt-2">
+                                            <a asp-action="ViewProduct" asp-controller="Home" asp-route-id="@item.Product.Id" class="title text-truncate text-center">@item.Product.Name</a>
+                                        </h5>
+
+                                        <p class="card-text text-center">
+                                            @if (item.Product.DiscountedPrice < item.Product.Price)
+                                            {
+                                                <span class="text-success h6">&#x20b9 @item.Product.DiscountedPrice</span>
+                                                <span class="text-muted text-decoration-line-through ms-2">@item.Product.Price.ToString("c", new CultureInfo("en-IN"))</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">@item.Product.Price.ToString("c", new CultureInfo("en-IN"))</span>
+                                            }
+                                        </p>
+
+                                       
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-grid gap-2">
+                                        @if (item.Product.Qty <= 0)
+                                        {
+
+                                            <a class="btn btn-outline-danger btn-sm">
+                                                <i class="material-icons md-edit me-1"></i> Out Of Stock
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="ViewProduct" asp-controller="Home" asp-route-id="@item.Product.Id" class="btn btn-primary btn-sm">
+                                                <i class="material-icons md-edit me-1"></i> Add to Cart
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </form>
+    </section> 
+}

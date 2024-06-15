@@ -1,0 +1,64 @@
+﻿@model List<Plan_A_Plant.Models.Offer>
+
+@{
+    ViewData["Title"] = "Offers";
+}
+
+<h2 class="my-4">@ViewData["Title"]</h2>
+
+<div class="mb-3">
+    <a href="@Url.Action("Create")" class="btn btn-primary">Create New Offer</a>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th>Offer Name</th>
+            <th>Offer Type</th>
+            <th>Product/Category Name</th>
+            <th>Discount</th>
+            <th>Description</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.OfferName</td>
+                <td>@item.Offertype</td>
+                <td>
+                    @if (item.Offertype == Plan_A_Plant.Models.Offer.OfferType.Product)
+                    {
+                        @item.Product?.Name
+                    }
+                    else if (item.Offertype == Plan_A_Plant.Models.Offer.OfferType.Category)
+                    {
+                        @item.Category?.Name
+                    }
+                </td>
+                <td>@item.OfferDiscount %</td>
+                <td>@item.OfferDescription</td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = item.OfferId })" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="@Url.Action("Delete", new { id = item.OfferId })" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    .table .btn {
+        margin-right: 5px;
+    }
+
+    .table .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>

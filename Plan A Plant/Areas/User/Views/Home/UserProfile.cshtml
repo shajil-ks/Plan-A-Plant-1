@@ -1,0 +1,85 @@
+﻿@{
+    ViewData["Title"] = "User Profile";
+}
+
+@section css {
+    <link rel="stylesheet" href="~/css/Profile.css" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+}
+
+@model ApplicationUser
+
+<section class="vh-100" style="background-color: #f4f5f7;">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-lg-8 mb-4 mb-lg-0">
+                <div class="card mb-3" style="border-radius: .5rem;">
+                    <div class="row g-0">
+                        <div class="col-md-4 gradient-custom text-center text-white"
+                             style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem; background: linear-gradient(to right, #6a11cb, #2575fc);">
+                            <img src="https://www.shareicon.net/data/128x128/2016/05/24/770137_man_512x512.png"
+                                 alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                            <h5>@Model.Name</h5>
+                            @if (User.IsInRole(SD.Role_User))
+                            {
+                                <p>User</p>
+                            }
+                            <a asp-area="User" asp-controller="Home" asp-action="EditUserProfile" class="btn btn-outline-light btn-sm mt-3">
+                                <i class="bi bi-pencil-square text-light"></i> Edit
+                            </a>
+                            <a asp-action="Wallet" class="btn btn-outline-light btn-sm mt-3">
+                                <span style="font-size: 16px;">
+                                    Wallet : &#x20B9;
+                                    @if (Model.Wallet <= 0 || Model.Wallet == null)
+                                    {
+                                        
+                                    }
+                                    else
+                                    {
+                                        @Model.Wallet
+                                    }
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body p-4">
+                                <h6>Information</h6>
+                                <hr class="mt-0 mb-4">
+                                <div class="row pt-1">
+                                    <div class="col-6 mb-3">
+                                        <h6>Email</h6>
+                                        <p class="text-muted">@Model.Email</p>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <h6>Phone</h6>
+                                        <p class="text-muted">@Model.PhoneNumber</p>
+                                    </div>
+                                </div>
+                                <div class="row pt-1">
+                                    <div class="col-6 mb-3">
+                                        <h6>Street Address</h6>
+                                        <p class="text-muted">@Model.StreetAddress</p>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <h6>City</h6>
+                                        <p class="text-muted">@Model.City</p>
+                                    </div>
+                                </div>
+                                <div class="row pt-1">
+                                    <div class="col-6 mb-3">
+                                        <h6>State</h6>
+                                        <p class="text-muted">@Model.State</p>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <h6>Postal Code</h6>
+                                        <p class="text-muted">@Model.PostalCode</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

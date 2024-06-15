@@ -1,0 +1,94 @@
+﻿@model Plan_A_Plant.Models.ViewModels.OfferVM
+
+<h2 class="text-center mt-4">Create Offer</h2>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div class="form-group">
+                            <label asp-for="Offer.OfferName" class="font-weight-bold"></label>
+                            <input asp-for="Offer.OfferName" class="form-control" />
+                            <span asp-validation-for="Offer.OfferName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Offer.Offertype" class="font-weight-bold"></label>
+                            <select asp-for="Offer.Offertype" class="form-control" id="offerTypeSelect">
+                                <option value="0">Category</option>
+                                <option value="1">Product</option>
+                                <option value="2">Referral</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="categorySelect" style="display:none;">
+                            <label asp-for="SelectedCategoryId" class="font-weight-bold">Category</label>
+                            <select asp-for="SelectedCategoryId" class="form-control">
+                                <option value="">Select a Category</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SelectedCategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" id="productSelect" style="display:none;">
+                            <label asp-for="SelectedProductId" class="font-weight-bold">Product</label>
+                            <select asp-for="SelectedProductId" class="form-control">
+                                <option value="">Select a Product</option>
+                                @foreach (var product in Model.Products)
+                                {
+                                    <option value="@product.Id">@product.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SelectedProductId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Offer.OfferDiscount" class="font-weight-bold"></label>
+                            <input asp-for="Offer.OfferDiscount" class="form-control" />
+                            <span asp-validation-for="Offer.OfferDiscount" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Offer.OfferDescription" class="font-weight-bold"></label>
+                            <textarea asp-for="Offer.OfferDescription" class="form-control"></textarea>
+                            <span asp-validation-for="Offer.OfferDescription" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn btn-primary mr-2">Save</button>
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#offerTypeSelect").change(function () {
+                var selectedValue = $(this).val();
+                if (selectedValue == 0) {
+                    $("#categorySelect").show();
+                    $("#productSelect").hide();
+                } else if (selectedValue == 1) {
+                    $("#categorySelect").hide();
+                    $("#productSelect").show();
+                } else {
+                    $("#categorySelect").hide();
+                    $("#productSelect").hide();
+                }
+            });
+
+            // Trigger change event on page load to set initial state
+            $("#offerTypeSelect").change();
+        });
+    </script>
+}

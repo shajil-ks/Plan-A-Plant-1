@@ -17,6 +17,8 @@ namespace Plan_A_Plant.Models
         [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
         public double Price { get; set; }
 
+        public double? DiscountedPrice { get; set; }
+
         [Required(ErrorMessage = "Quantity is required.")]
         [Range(0, int.MaxValue, ErrorMessage = "Quantity can't be less than zero.")]
         public int Qty { get; set; }
@@ -26,8 +28,13 @@ namespace Plan_A_Plant.Models
         [ValidateNever]
         public Category Category { get; set; }
         [ValidateNever]
-        public List<ProductImage>ProductImages { get; set; }    
-        
-         
+        public List<ProductImage>ProductImages { get; set; }
+
+        public Product()
+        {
+            DiscountedPrice = Price;
+        }
+
+
     }
 }

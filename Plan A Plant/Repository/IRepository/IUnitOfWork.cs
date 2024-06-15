@@ -13,6 +13,12 @@
         IOrderDetailRepository OrderDetail { get; } 
 
         IOrderHeaderRepository OrderHeader { get; } 
+
+        IWishListRepository WishList { get; }   
+
+        ICouponRepository Coupon { get; }   
+
+        IOfferRepository Offer { get; } 
        
         void Save();
     }

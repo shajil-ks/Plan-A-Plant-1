@@ -68,6 +68,8 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             {
                 if (productVM.Product.Id == 0)
                 {
+                    // Set the DiscountedPrice to the Price when creating a new product
+                    productVM.Product.DiscountedPrice = productVM.Product.Price;
                     _unitOfWork.Product.Add(productVM.Product);
                 }
                 else

@@ -12,6 +12,14 @@
             </div>
         </div>
 
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="https://localhost:7208/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">View Product</li>
+            </ol>
+        </nav>
+
+
         <div class="card-body">
             <div class="py-3">
                 <div class="row">
@@ -30,7 +38,7 @@
                             <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-indicators">
                                     @foreach (var imagewithIndex in Model.Product.ProductImages
-                                   .Select((image, index) => new { Image = image, Index = index }))
+              .Select((image, index) => new { Image = image, Index = index }))
                                     {
                                         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@imagewithIndex.Index" class="@(imagewithIndex.Index==0?"active":"")" aria-current="true" aria-label="Slide 1"></button>
 
@@ -39,12 +47,15 @@
                                 </div>
                                 <div class="carousel-inner">
                                     @foreach (var imagewithIndex in Model.Product.ProductImages
-                                   .Select((image, index) => new { Image = image, Index = index }))
+              .Select((image, index) => new { Image = image, Index = index }))
                                     {
                                         <div class="@(imagewithIndex.Index==0?"carousel-item active":"carousel-item")">
-                                            <img src="@(imagewithIndex.Image.ImageUrl)" class="d-block w-100" alt="...">
+                                            <a href="@(imagewithIndex.Image.ImageUrl)" class="zoomable">
+                                                <img src="@(imagewithIndex.Image.ImageUrl)" class="d-block w-100" alt="...">
+                                            </a>
                                         </div>
                                     }
+
 
                                 </div>
                                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -59,16 +70,26 @@
                         }
 
                     </div>
-                                     
+
 
                     <div class="col-12 col-lg-6 offset-lg-1">
                         <div class="col-12 col-md-6 pb-4">
                             <span class="badge">@Model.Product.Category.Name</span>
                         </div>
 
-                        <div class="row text-center ps-2">
-                            <div class="p-1 col-3 col-lg-2 bg-white text-warning fw-bold">
-                                <div>Price: @Model.Product.Price.ToString("c", new CultureInfo("en-IN"))</div>
+                        <div class="row text-lg-start ps-2">
+                            <div class="p-1 col-3 col-lg-3 bg-white text-warning fw-bold">
+                                @if (Model.Product.DiscountedPrice < Model.Product.Price)
+                                {
+                                    <div>
+                                        <span class="text-success h6">Price: &#x20b9 @Model.Product.DiscountedPrice</span>
+                                        <span class="text-muted text-decoration-line-through ms-2">@Model.Product.Price.ToString("c", new CultureInfo("en-IN"))</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>Price: @Model.Product.Price.ToString("c", new CultureInfo("en-IN"))</div>
+                                }
                             </div>
                         </div>
 
@@ -80,26 +101,79 @@
                         </div>
 
                         <div class="row pl-2 mb-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="input-group mb-3">
                                     <span class="input-group-text bg-primary text-white border-0 fw-semibold" id="inputGroup-sizing-default">Count</span>
-                                    <input asp-for="Count" type="number" value="1" class="form-control text-end" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" />
-                                    <span class="text-danger fw-bolder">@TempData["StockErorr"]</span>
-                                    <span class="text-danger fw-bolder">@TempData["LimitErorr"]</span>
+                                    <input asp-for="Count" type="number" value="1" min="0" class="form-control text-end" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" />
+                                    @if (Model.Product.Qty == 0)
+                                    {
+                                        <span class="text-danger  opacity-75 fw-bolder"> Out of Stock!!! </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger  opacity-75 fw-bolder">Stock Left : @Model.Product.Qty</span>
+                                    }
                                 </div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-12 col-md-6 pb-1">
-                                <button type="submit" 
-                                class="btn btn-primary bg-gradient w-100 py-2 text-uppercase fw-semibold">Add to Cart</button>
+                                <button type="submit" class="btn btn-primary bg-gradient w-100 py-2 text-uppercase fw-semibold">Add to Cart <i class=" bi bi-cart"></i></button>
+                            </div>
+                            <div class="col-12 col-md-6 pb-1">
+                                <button type="button" onclick="addToWishlist(@Model.Product.Id)" class="btn btn-outline-success bg-gradient w-100 py-2 text-uppercase fw-semibold">Add to WishList <i class="bi bi-heart"></i></button>
                             </div>
                         </div>
-                    </div>
+
+
+
+                      </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
 
+<script>
+    $(document).ready(function () {
+        $('#carouselExampleIndicators').lightGallery({
+            selector: '.zoomable',
+            zoom: true
+        });
+    });
+
+    // Function to handle adding product to wishlist
+    function addToWishlist(productId) {
+        $.ajax({
+            type: 'POST',
+            url: '/User/Wishlist/AddToWishlist',
+            data: { productId: productId },
+            success: function (response) {
+                if (response.success) {
+                    // Show success message
+                    toastr.success(response.message);
+                } else {
+                    // Show error message
+                    toastr.error(response.message);
+                }
+            }
+        });
+    }
+
+
+</script>
+
+<script>
+    // Add event listener to the input field
+    document.getElementById('Count').addEventListener('input', function () {
+        // Retrieve the current value
+        var count = parseInt(this.value);
+
+        // Check if the value is less than zero
+        if (count < 0) {
+            // Set the value to one
+            this.value = 1;
+        }
+    });
+</script>

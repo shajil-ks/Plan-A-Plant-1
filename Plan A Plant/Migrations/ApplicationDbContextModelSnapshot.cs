@@ -283,6 +283,88 @@ namespace Plan_A_Plant.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Plan_A_Plant.Models.Coupon", b =>
+                {
+                    b.Property<int>("CouponId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CouponId"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("DiscountAmount")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("DiscountPercentage")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IsValid")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("MaximumAmount")
+                        .HasColumnType("float");
+
+                    b.Property<double>("MinimumAmount")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("CouponId");
+
+                    b.ToTable("Coupons");
+                });
+
+            modelBuilder.Entity("Plan_A_Plant.Models.Offer", b =>
+                {
+                    b.Property<int>("OfferId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OfferId"));
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OfferDescription")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("OfferDiscount")
+                        .HasColumnType("float");
+
+                    b.Property<string>("OfferName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Offertype")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OfferId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Offers");
+                });
+
             modelBuilder.Entity("Plan_A_Plant.Models.OrderDetail", b =>
                 {
                     b.Property<int>("Id")
@@ -324,12 +406,27 @@ namespace Plan_A_Plant.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("CancellationReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CancellationRequestDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CancellationStatus")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Carrier")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CouponCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CouponId")
+                        .HasColumnType("int");
 
                     b.Property<string>("MobileNumber")
                         .IsRequired()
@@ -354,7 +451,11 @@ namespace Plan_A_Plant.Migrations
                     b.Property<DateOnly>("PaymentDueDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("PaymentIntent")
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PaymentStatus")
@@ -362,6 +463,9 @@ namespace Plan_A_Plant.Migrations
 
                     b.Property<string>("PostalCode")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SessionId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ShippingDate")
@@ -400,6 +504,9 @@ namespace Plan_A_Plant.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double?>("DiscountedPrice")
+                        .HasColumnType("float");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -422,6 +529,7 @@ namespace Plan_A_Plant.Migrations
                             Id = 1,
                             CategoryId = 1,
                             Description = " Test msg",
+                            DiscountedPrice = 0.0,
                             Name = "Money Plant",
                             Price = 300.0,
                             Qty = 9
@@ -431,6 +539,7 @@ namespace Plan_A_Plant.Migrations
                             Id = 2,
                             CategoryId = 2,
                             Description = " Test msg",
+                            DiscountedPrice = 0.0,
                             Name = "Money Plant",
                             Price = 200.0,
                             Qty = 2
@@ -486,6 +595,30 @@ namespace Plan_A_Plant.Migrations
                     b.ToTable("ShoppingCarts");
                 });
 
+            modelBuilder.Entity("Plan_A_Plant.Models.WishList", b =>
+                {
+                    b.Property<int>("WishListId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WishListId"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("WishListId");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("WishLists");
+                });
+
             modelBuilder.Entity("Plan_A_Plant.Models.ApplicationUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -507,6 +640,21 @@ namespace Plan_A_Plant.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StreetAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UsedCoupons")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Wallet")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WalletPaymentIntentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WalletSessionId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -564,6 +712,21 @@ namespace Plan_A_Plant.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Plan_A_Plant.Models.Offer", b =>
+                {
+                    b.HasOne("Plan_A_Plant.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("Plan_A_Plant.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Plan_A_Plant.Models.OrderDetail", b =>
                 {
                     b.HasOne("Plan_A_Plant.Models.OrderHeader", "orderHeader")
@@ -617,6 +780,25 @@ namespace Plan_A_Plant.Migrations
                 });
 
             modelBuilder.Entity("Plan_A_Plant.Models.ShoppingCart", b =>
+                {
+                    b.HasOne("Plan_A_Plant.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Plan_A_Plant.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Plan_A_Plant.Models.WishList", b =>
                 {
                     b.HasOne("Plan_A_Plant.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()

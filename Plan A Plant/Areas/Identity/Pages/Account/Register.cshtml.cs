@@ -23,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using Plan_A_Plant.Models;
 using Plan_A_Plant.Utility;
 
+
 namespace Plan_A_Plant.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
@@ -33,7 +34,7 @@ namespace Plan_A_Plant.Areas.Identity.Pages.Account
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailSender;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -41,12 +42,12 @@ namespace Plan_A_Plant.Areas.Identity.Pages.Account
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailService emailSender)
         {
             _userManager = userManager;
             _roleManager = roleManager; 
             _userStore = userStore;
-            _emailStore = GetEmailStore();
+            _emailStore = (IUserEmailStore<IdentityUser>)GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
@@ -108,7 +109,8 @@ namespace Plan_A_Plant.Areas.Identity.Pages.Account
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList {  get; set; }
             [Required]
-            
+
+            [RegularExpression(@"^[a-zA-Z\s]*$", ErrorMessage = "Name must contain only letters and spaces.")]
             [MinLength(2, ErrorMessage = "Name must be at least 2 characters long.")]
             [MaxLength(50, ErrorMessage = "Name cannot exceed 50 characters.")]
             public string Name { get; set; }
@@ -171,7 +173,9 @@ namespace Plan_A_Plant.Areas.Identity.Pages.Account
                 user.StreetAddress = Input.StreetAddress;
                 user.PhoneNumber = Input.MobileNumber;
                 user.PostalCode = Input.PostalCode; 
-                user.State= Input.State;    
+                user.State= Input.State;
+                user.EmailConfirmed = false;
+                user.TwoFactorEnabled = true;//twofactor enable
 
 
 
@@ -189,28 +193,33 @@ namespace Plan_A_Plant.Areas.Identity.Pages.Account
                     {
                         await _userManager.AddToRoleAsync(user, SD.Role_User);
                     }
+                    var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+                    var mes = new Message(new string[] { user.Email }, "Authentication token", token);
+                    _emailSender.SendEmail(mes);
+                    return RedirectToPage("/Account/VerifyOTP", new { email = user.Email, returnUrl = returnUrl });
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                        "/Account/ConfirmEmail",
-                        pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+                    ////var userId = await _userManager.GetUserIdAsync(user);
+                    ////var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+                    //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    //var callbackUrl = Url.Page(
+                    //    "/Account/ConfirmEmail",
+                    //    pageHandler: null,
+                    //    values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                    //    protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                    {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                    }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
-                    }
+                    //if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    //{
+                    //    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                    //}
+                    //else
+                    //{
+                    //    await _signInManager.SignInAsync(user, isPersistent: false);
+                    //    return LocalRedirect(returnUrl);
+                    //}
                 }
                 foreach (var error in result.Errors)
                 {

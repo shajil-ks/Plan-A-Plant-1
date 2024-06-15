@@ -1,6 +1,7 @@
 ﻿@model OrderVM
 
 <form method="post">
+    <input asp-for="OrderHeader.Id" hidden />
     <br />
     <div class="container">
         <div class="card">
@@ -142,29 +143,29 @@
                             <div class="row my-1">
                                 <div class="col-3">Carrier</div>
                                 <div class="col-9">
-                                    @if (User.IsInRole(SD.Role_User))
+                                    @if (User.IsInRole(SD.Role_Admin))
                                     {
-                                        <input asp-for="OrderHeader.Carrier" readonly type="text" class="form-control" />
+                                        <input asp-for="OrderHeader.Carrier" id="carrier" type="text" class="form-control" />
                                     }
                                     else
                                     {
                                         <input asp-for="OrderHeader.Carrier" readonly type="text" class="form-control" />
                                     }
-                                    <span asp-validation-for="OrderHeader.Carrier" class="text-danger"></span>
+                                    
                                 </div>
                             </div>
                             <div class="row my-1">
                                 <div class="col-3">Tracking</div>
                                 <div class="col-9">
-                                    @if (User.IsInRole(SD.Role_User))
+                                    @if (User.IsInRole(SD.Role_Admin))
                                     {
-                                        <input asp-for="OrderHeader.TrackingNumber" readonly type="text" class="form-control" />
+                                        <input asp-for="OrderHeader.TrackingNumber" id="trackingNumber" type="text" class="form-control" />
                                     }
                                     else
                                     {
                                         <input asp-for="OrderHeader.TrackingNumber" readonly type="text" class="form-control" />
                                     }
-                                    <span asp-validation-for="OrderHeader.TrackingNumber" class="text-danger"></span>
+                                   
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -254,6 +255,12 @@
                                     <span asp-validation-for="OrderHeader.PaymentStatus" class="text-danger"></span>
                                 </div>
                             </div>
+
+                            
+
+
+
+
                            @*  <input type="submit" class="btn btn-warning form-control my-1" value="Update Order Details" /> *@
 
                         </div>
@@ -291,26 +298,91 @@
                                     </div>
                                 </li>
                             </ul>
+                            @if (Model.OrderHeader.CancellationStatus == SD.StatusPending && User.IsInRole(SD.Role_Admin))
+           
+                            {
+                                <div class="row my-1">
+                                    <div class="col-3">Cancellation Reason</div>
+                                    <div class="col-9">
+                                        @if (User.IsInRole(SD.Role_Admin))
+                                        {
+                                            <input asp-for="OrderHeader.CancellationReason" readonly type="text" class="form-control" />
+                                        }
+
+                                    </div>
+                                </div>
+                            }
+
+
                             @if (User.IsInRole(SD.Role_Admin))
                             {
-                                @if (Model.OrderHeader.OrderStatus == SD.StatusApproved)
+                                @if (Model.OrderHeader.OrderStatus == SD.StatusApproved && Model.OrderHeader.CancellationStatus !=SD.StatusPending)
                                 {
                                     <button type="submit" asp-action="StartProcessing"
                                         class="btn btn-primary form-control my-1">Start Processing</button>
                                 }
                                 @if (Model.OrderHeader.OrderStatus == SD.StatusInProcess)
                                 {
-                                    <button type="submit" class="btn btn-primary form-control my-1">Ship Order</button>
-                                }
-                            }
-                                @if(Model.OrderHeader.OrderStatus !=SD.StatusRefunded &&
-                                   Model.OrderHeader.OrderStatus != SD.StatusCancelled &&
-                                   Model.OrderHeader.OrderStatus != SD.StatusShipped)
-                           
-                                {
-                                    <button type="submit" class="btn btn-danger form-control my-1">Cancel Order</button>
+                                    <button type="submit" asp-action="ShipOrder" onclick="return validateInput()" class="btn btn-primary form-control my-1">Ship Order</button>
                                 }
 
+
+                                @if (Model.OrderHeader.OrderStatus == SD.StatusShipped)
+                                {
+                                    <button type="submit" asp-action="Delivered"
+                                            class="btn btn-primary form-control my-1">
+                                        Delivered
+                                    </button>
+                                }
+
+                            }
+                            @if (Model.OrderHeader.OrderStatus != SD.StatusRefunded  &&
+                            Model.OrderHeader.OrderStatus != SD.StatusCancelled && User.IsInRole(SD.Role_User) && Model.OrderHeader.CancellationStatus !=SD.StatusPending)
+
+                            {
+                                
+                                <div class="form-group">
+                                    <label>Cancellation Reason</label>
+                                    
+                                    <select name="reason" id="cancellationReason" class="form-control" required>
+                                        <option value="">Select a reason</option>
+                                        <option value="Found a better price elsewhere">Found a better price elsewhere</option>
+                                        <option value="Product is no longer needed">Product is no longer needed</option>
+                                        <option value="Ordered by mistake">Ordered by mistake</option>
+                                        <option value="Product did not meet expectations">Product did not meet expectations</option>
+                                        <option value="Shipping time was too long">Shipping time was too long</option>
+                                        <option value="Changed my mind">Changed my mind</option>
+                                        <option value="Duplicate order">Duplicate order</option>
+                                        <option value="Product is out of stock">Product is out of stock</option>
+                                        <option value="Received as a gift">Received as a gift</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span asp-validation-for="CancellationRequest.Reason" class="text-danger"></span>
+                                    <div id="cancellationReasonWarning" class="text-danger" style="display: none;">Please provide a reason for cancellation.</div>
+                                </div>
+                                <button type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1" onclick="return validateCancellationReason()">Cancel Order</button>
+
+
+                            }
+                            
+                            @if (Model.OrderHeader.OrderStatus != SD.StatusRefunded  &&
+                            Model.OrderHeader.OrderStatus != SD.StatusCancelled && User.IsInRole(SD.Role_Admin) && Model.OrderHeader.CancellationStatus !=SD.StatusPending)
+
+                            {
+                                <button type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1">Cancel Order</button>
+
+                            }
+
+                            @if (Model.OrderHeader.CancellationStatus==SD.StatusPending
+                            && User.IsInRole(SD.Role_Admin))
+                            {
+                                <div class="mt-3">
+                                    <button type="submit" asp-action="ApproveCancellation" class="btn btn-success">Approve</button>
+                                   @*  <button type="submit" asp-action="RejectCancellation" class="btn btn-danger">Reject</button> *@
+                                </div>
+                                
+                            }
+                           
                                 
                             
                         </div>
@@ -320,3 +392,73 @@
         </div>
     </div>
 </form>
+
+<form method="post">
+    <input asp-for="OrderHeader.Id" hidden />
+    @if (User.IsInRole(SD.Role_User))
+    {
+        @if (Model.OrderHeader.OrderStatus == SD.StatusShipped || Model.OrderHeader.OrderStatus == SD.StatusDelivered)
+        {
+            <button class="btn btn-outline-primary 
+form-control my-1" asp-action="Invoice" asp-controller="Order" asp-route-orderId="@Model.OrderHeader.Id">Download Invoice</button>
+        }
+    }
+
+</form>
+
+
+
+<form method="post">
+    <input asp-for="OrderHeader.Id" hidden />
+@if (Model.OrderHeader.PaymentMethod == SD.PaymentMethodOnline.ToString() && Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayPayment)
+{
+    <button type="submit" asp-action="ContinuePayment" class="btn btn-primary form-control my-1">Continue Payment</button>
+
+}
+</form>
+
+
+@section scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function validateInput() {
+            if (document.getElementById("trackingNumber").value == "") {
+                swal.fire({
+                    icon: 'error',
+                    title: 'Oops.....',
+                    text: 'Please enter tracking number',
+                });
+                return false;
+            }
+            if (document.getElementById("carrier").value == "") {
+                swal.fire({
+                    icon: 'error',
+                    title: 'Oops.....',
+                    text: 'Please enter Carrier ',
+                });
+                return false;
+            }
+            return true;
+        }
+        function validateCancellationReason() {
+            var cancellationReason = document.getElementById("cancellationReason").value;
+            var warningDiv = document.getElementById("cancellationReasonWarning");
+
+            if (cancellationReason.trim() === "") {
+                warningDiv.style.display = "block";
+                return false;
+            } else {
+                warningDiv.style.display = "none";
+                return true;
+            }
+        }
+
+
+       
+    </script>
+}
+@*   Model.OrderHeader.OrderStatus != SD.StatusShipped  *@
+
+
+
+

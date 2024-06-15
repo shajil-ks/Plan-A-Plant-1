@@ -3,8 +3,11 @@
     public class ShoppingCartVM
     {
         public IEnumerable<ShoppingCart> ShoppingCartList {  get; set; } 
-        public OrderHeader OrderHeader { get; set; }    
-       
+        public OrderHeader OrderHeader { get; set; }
+
+
+        public ApplicationUser ApplicationUser { get; set; }    
+        public List<Coupon> CouponList { get; set; }
 
     }
 }

@@ -1,0 +1,60 @@
+﻿@model ApplicationUser
+
+@section css {
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+}
+
+<section style="background-color: #eee;">
+    <div class="container py-5">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-4">
+                <div class="card rounded-3 shadow-sm">
+                    <div class="card-body mx-1 my-2">
+                        <div class="d-flex align-items-center mb-4">
+                            <div>
+                                <img src="https://www.shareicon.net/data/128x128/2016/05/24/770137_man_512x512.png" alt="Avatar" class="rounded-circle" width="60" />
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="mb-0">@Model.Name</h5>
+                                <small class="text-muted">*****</small>
+                            </div>
+                        </div>
+                        <form method="post">
+                            <div class="mb-3">
+                                <div class="card border-primary border-2 p-3" style="background-color: rgba(18, 101, 241, 0.07);">
+                                    <div class="d-flex flex-column">
+                                        <small class="text-primary">Total amount available</small>
+                                        <h6 class="text-primary mb-0">&#x20B9; @Model.Wallet</h6>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="card p-3">
+                                    <div class="d-flex flex-column">
+                                        <small class="text-primary">Add amount to Wallet</small>
+                                        <div class="d-flex flex-row align-items-center">
+                                            @if (TempData["ValueNot"] != null)
+                                            {
+                                                <span class="text-danger me-2">@TempData["ValueNot"]</span>
+                                            }
+                                            <h6 class="text-primary mb-0 me-2">&#x20B9;</h6>
+                                            <div class="input-group">
+                                                <input asp-for="Wallet" type="text" class="form-control form-control-sm" style="width: 80px;" />
+                                                <button type="submit" class="btn btn-primary btn-sm ms-2">Pay amount</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="https://localhost:7208/User/Home/UserProfile" class="text-muted">Go back</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

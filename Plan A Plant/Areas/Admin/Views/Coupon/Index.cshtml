@@ -1,0 +1,63 @@
+﻿@model List<Coupon>
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-white text-center py-2">Coupon List</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-12 text-end">
+                <a asp-controller="Coupon" asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create New Coupon
+                </a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-light mt-2 mb-3 table-striped table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 8%;">Code</th>
+                        <th scope="col" style="width: 10%;">Description</th>
+                        <th scope="col" style="width: 10%;">Type</th>
+                        <th scope="col" style="width: 10%;">Discount Amount</th>
+                        <th scope="col" style="width: 10%;">Discount Percentage</th>
+                        <th scope="col" style="width: 10%;">Minimum Amount</th>
+                        <th scope="col" style="width: 10%;">Maximum Amount</th>
+                        <th scope="col" style="width: 10%;">Expiry Date</th>
+                        <th scope="col" style="width: 20%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var obj in Model)
+                    {
+                        <tr>
+                            <td>@obj.Code</td>
+                            <td>@obj.Description</td>
+                            <td>@obj.Type</td>
+                            <td>@obj.DiscountAmount</td>
+                            <td>@obj.DiscountPercentage</td>
+                            <td>@obj.MinimumAmount</td>
+                            <td>@obj.MaximumAmount</td>
+                            <td>@obj.ExpiryDate</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-controller="Coupon" asp-action="Edit" asp-route-id="@obj.CouponId" class="btn btn-primary">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                    <a asp-controller="Coupon" asp-action="Delete" asp-route-id="@obj.CouponId" class="btn btn-outline-danger">
+                                        <i class="bi bi-trash3"></i> Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

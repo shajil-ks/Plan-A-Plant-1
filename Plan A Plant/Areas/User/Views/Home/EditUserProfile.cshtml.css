@@ -1,0 +1,30 @@
+﻿.gradient-custom {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: #fff;
+}
+
+.card-registration {
+    background: #fff;
+    padding: 30px;
+    border-radius: 15px;
+}
+
+.form-label {
+    color: #6c757d;
+}
+
+.btn-primary {
+    background-color: #6a11cb;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+    .btn-primary:hover {
+        background-color: #2575fc;
+    }
+
+
+
+

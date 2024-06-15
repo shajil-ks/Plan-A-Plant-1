@@ -4,6 +4,7 @@
     var inprocess = "text-primary";
     var completed = "text-primary";
     var approved = "text-primary";
+    var delivered = "text-primary";
     var all = "text-primary";
 
     switch (status)
@@ -20,6 +21,10 @@
         case "approved":
             approved = "active text-white bg-primary";
             break;
+        case "delivered":
+            delivered = "active text-white bg-primary";
+            break;
+
         default:
             all = "active text-white bg-primary";
             break;
@@ -56,6 +61,11 @@
                      <a style="text-decoration:none;" asp-controller="Order" asp-action="Index" asp-route-status="approved">
                         <li class="list-group-item @approved ">Approved</li>
                     </a>
+
+                    <a style="text-decoration:none;" asp-controller="Order" asp-action="Index" asp-route-status="delivered">
+                    <li class="list-group-item @delivered ">Delivered</li>
+                    </a>
+
 
                     <a style="text-decoration:none;" asp-controller="Order" asp-action="Index" asp-route-status="all">
                     <li class="list-group-item @all">All</li>

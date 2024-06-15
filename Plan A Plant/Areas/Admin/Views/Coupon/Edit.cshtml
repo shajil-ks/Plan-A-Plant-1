@@ -1,0 +1,136 @@
+﻿@model Plan_A_Plant.Models.Coupon
+
+<style>
+    .form-floating {
+        position: relative;
+    }
+
+        .form-floating label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.25;
+            color: #6c757d;
+            pointer-events: none;
+            transition: all 0.1s ease-in-out;
+            transform-origin: 0 0;
+        }
+
+        .form-floating input:focus ~ label,
+        .form-floating input:not(:placeholder-shown) ~ label {
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+
+        .form-floating textarea:focus ~ label,
+        .form-floating textarea:not(:placeholder-shown) ~ label {
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-secondary bg-gradient py-3">
+                    <h2 class="text-white text-center">Edit Coupon</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form id="couponForm" asp-action="Edit" method="post">
+                        <input asp-for="CouponId" hidden />
+
+                        <div class="form-floating mb-3">
+                            <label asp-for="Code"></label>
+                            <input asp-for="Code" type="text" class="form-control" />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <label asp-for="Description"></label>
+                            <input asp-for="Description" type="text" class="form-control" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <select asp-for="Type" id="typeSelect" class="form-control">
+                                <option value="" disabled>Select the Discount Type</option>
+                                @foreach (var type in Enum.GetValues(typeof(Plan_A_Plant.Models.Coupon.DiscountType)))
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div id="discountAmountField" class="form-floating mb-3" style="display: none;">
+                            <label asp-for="DiscountAmount"></label>
+                            <input asp-for="DiscountAmount" type="text" class="form-control" />
+                            <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                        </div>
+
+                        <div id="discountPercentageField" class="form-floating mb-3" style="display: none;">
+                            <label asp-for="DiscountPercentage"></label>
+                            <input asp-for="DiscountPercentage" type="text" class="form-control" />
+                            <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <label asp-for="MinimumAmount"></label>
+                            <input asp-for="MinimumAmount" type="text" class="form-control" />
+                            <span asp-validation-for="MinimumAmount" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <label asp-for="MaximumAmount"></label>
+                            <input asp-for="MaximumAmount" type="text" class="form-control" />
+                            <span asp-validation-for="MaximumAmount" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <label asp-for="ExpiryDate"></label>
+                            <input asp-for="ExpiryDate" type="date" class="form-control" />
+                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="row pt-2 mb-5">
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-primary form-control">Save Changes</button>
+                            </div>
+                            <div class="col-6">
+                                <a asp-controller="Coupon" asp-action="Index" class="btn btn-outline-secondary form-control">Back To List</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var typeSelect = document.getElementById("typeSelect");
+            var discountAmountField = document.getElementById("discountAmountField");
+            var discountPercentageField = document.getElementById("discountPercentageField");
+
+            typeSelect.addEventListener("change", function () {
+                if (typeSelect.value === "DiscountAmount") {
+                    discountAmountField.style.display = "block";
+                    discountPercentageField.style.display = "none";
+                } else if (typeSelect.value === "DiscountPercentage") {
+                    discountAmountField.style.display = "none";
+                    discountPercentageField.style.display = "block";
+                } else {
+                    discountAmountField.style.display = "none";
+                    discountPercentageField.style.display = "none";
+                }
+            });
+
+            typeSelect.dispatchEvent(new Event("change"));
+        });
+    </script>
+}

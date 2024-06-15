@@ -18,6 +18,11 @@ namespace Plan_A_Plant.Repository
 
         public IOrderDetailRepository OrderDetail { get; private set; } 
 
+        public IWishListRepository WishList { get; private set; }   
+
+        public ICouponRepository Coupon { get; private set; }   
+
+        public IOfferRepository Offer { get; private set; } 
 
         public UnitOfWork(ApplicationDbContext db) 
         {
@@ -29,6 +34,9 @@ namespace Plan_A_Plant.Repository
             Product = new ProductRepository(_db);
             OrderDetail = new OrderDetailRepository(_db);
             OrderHeader = new OrderHeaderRepository(_db);
+            WishList = new WishListRepository(_db); 
+            Coupon = new CouponRepository(_db);
+            Offer = new OfferRepository(_db);
             
         }
         

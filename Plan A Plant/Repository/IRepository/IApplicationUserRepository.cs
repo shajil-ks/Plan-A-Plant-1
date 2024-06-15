@@ -4,7 +4,7 @@ namespace Plan_A_Plant.Repository.IRepository
 {
     public interface IApplicationUserRepository:IRepository <ApplicationUser>
     {
-        
-        
+        void Update(ApplicationUser obj);
+
     }
 }

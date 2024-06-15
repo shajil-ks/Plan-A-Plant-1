@@ -1,0 +1,109 @@
+﻿@model Plan_A_Plant.Models.Coupon
+
+<style>
+    .form-floating label {
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-secondary bg-gradient py-3">
+                    <h2 class="text-white text-center">Delete Coupon</h2>
+                </div>
+                <div class="card-body p-4">
+
+                    <form id="couponForm" method="post">
+                        <input asp-for="CouponId" hidden />
+
+                        <div class="form-floating mb-3">
+                            <label asp-for="Code"></label><br />
+                            <input asp-for="Code" type="text" class="form-control" disabled />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <select asp-for="Type" id="typeSelect" class="form-control" disabled>
+                                <option value="" disabled>Select the Discount Type</option>
+                                @foreach (var type in Enum.GetValues(typeof(Plan_A_Plant.Models.Coupon.DiscountType)))
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div id="discountAmountField" class="form-floating mb-3" style="display: none;">
+                            <label asp-for="DiscountAmount"></label><br>
+                            <input asp-for="DiscountAmount" type="text" class="form-control" disabled />
+                            <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                        </div>
+
+                        <div id="discountPercentageField" class="form-floating mb-3" style="display: none;">
+                            <label asp-for="DiscountPercentage"></label><br>
+                            <input asp-for="DiscountPercentage" type="text" class="form-control" disabled />
+                            <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <label asp-for="MinimumAmount"></label><br />
+                            <input asp-for="MinimumAmount" type="text" class="form-control" disabled />
+                            <span asp-validation-for="MinimumAmount" class="text-danger"></span>
+                        </div>
+                        <div class="row pt-2 mb-5">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-danger form-control" id="deleteButton">Delete</button>
+                            </div>
+                            <div class="col-6">
+                                <a asp-controller="Coupon" asp-action="Index" class="btn btn-outline-secondary form-control">Back To List</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var typeSelect = document.getElementById("typeSelect");
+            var discountAmountField = document.getElementById("discountAmountField");
+            var discountPercentageField = document.getElementById("discountPercentageField");
+
+            // Function to show corresponding discount field based on selected type
+            function showDiscountField() {
+                var selectedType = typeSelect.value;
+                if (selectedType === "DiscountAmount") {
+                    discountAmountField.style.display = "block";
+                    discountPercentageField.style.display = "none";
+                } else if (selectedType === "DiscountPercentage") {
+                    discountAmountField.style.display = "none";
+                    discountPercentageField.style.display = "block";
+                } else {
+                    discountAmountField.style.display = "none";
+                    discountPercentageField.style.display = "none";
+                }
+            }
+
+            // Add change event listener to typeSelect
+            typeSelect.addEventListener("change", function () {
+                showDiscountField();
+            });
+
+            // Trigger the change event initially to set the initial state
+            showDiscountField();
+
+            // Add click event listener to the delete button
+            document.getElementById("deleteButton").addEventListener("click", function () {
+                var confirmDelete = confirm("Are you sure you want to delete this coupon?");
+                if (confirmDelete) {
+                    // Submit the form for deletion
+                    document.getElementById("couponForm").submit();
+                }
+            });
+        });
+    </script>
+}

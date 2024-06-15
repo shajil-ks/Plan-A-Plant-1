@@ -1,126 +1,340 @@
 ﻿@model ShoppingCartVM
+@using System.Globalization
 
-<form method="post">
-	<br />
-	<div class="container">
-		<div class="card shadow border-0">
+<form method="post" id="yourFormId">
+    <br />
+    <div class="container">
+        <div class="card shadow border-0 mb-5">
+            <div class="card-header bg-secondary bg-gradient text-light ml-0 py-4">
+                <div class="row px-4">
+                    <div class="col-6">
+                        <h5 class="pt-2 text-white">
+                            Order Summary
+                        </h5>
+                    </div>
 
-			<div class="card-header bg-secondary bg-gradient text-light ml-0 py-4">
-				<div class="row px-4">
-					<div class="col-6">
-						<h5 class="pt-1 text-white">
-							Order Summary
-						</h5>
-					</div>
-					<div class="col-6 text-end">
-						<a asp-action="Index" class="btn btn-outline-danger btn-sm">Back to Cart</a>
-					</div>
-				</div>
-			</div>
-			<div class="card-body">
-				<div class="container rounded p-2">
-					<div class="row">
-						<div class="col-12 col-lg-6 pb-4">
-							<div class="row">
-								<h4 class="d-flex justify-content-between align-items-center mb-3">
-									<span class="text-info">Shipping Details:</span>
-								</h4>
-							</div>
-							<div class="row my-1">
-								<div class="col-3">
-									<label>Name</label>
-								</div>
-								<div class="col-9">
-									<input asp-for="@Model.OrderHeader.Name" class="form-control"/>
-									<span asp-validation-for="@Model.OrderHeader.Name" class="text-danger"></span>
-								</div>
-							</div>
-							<div class="row my-1">
-								<div class="col-3">
-									<label>Phone</label>
-								</div>
-								<div class="col-9">
-									<input asp-for="@Model.OrderHeader.MobileNumber" class="form-control" />
-									<span asp-validation-for="@Model.OrderHeader.MobileNumber" class="text-danger"></span>
-								</div>
-							</div>
-							<div class="row my-1">
-								<div class="col-3">
-									<label>Street Address</label>
-								</div>
-								<div class="col-9">
-									<input asp-for="@Model.OrderHeader.StreetAddress" class="form-control" />
-									<span asp-validation-for="@Model.OrderHeader.StreetAddress" class="text-danger"></span>
-								</div>
-							</div>
-							<div class="row my-1">
-								<div class="col-3">
-									<label>City</label>
-								</div>
-								<div class="col-9">
-									<input asp-for="@Model.OrderHeader.City" class="form-control" />
-									<span asp-validation-for="@Model.OrderHeader.City" class="text-danger"></span>
-								</div>
-							</div>
-							<div class="row my-1">
-								<div class="col-3">
-									<label>State</label>
-								</div>
-								<div class="col-9">
-									<input asp-for="@Model.OrderHeader.State" class="form-control" />
-									<span asp-validation-for="@Model.OrderHeader.State" class="text-danger"></span>
-								</div>
-							</div>
-							<div class="row my-1">
-								<div class="col-3">
-									<label>Postal Code</label>
-								</div>
-								<div class="col-9">
-									<input asp-for="@Model.OrderHeader.PostalCode" class="form-control" />
-									<span asp-validation-for="@Model.OrderHeader.PostalCode" class="text-danger"></span>
-								</div>
-							</div>
-						</div>
-						<div class="col-12 col-lg-5 offset-lg-1">
-							<h4 class="d-flex justify-content-between align-items-center mb-3">
-								<span class="text-info">Order Summary:</span>
-							</h4>
-							<ul class="list-group mb-3">
-								@foreach(var details in Model.ShoppingCartList){
-								<li class="list-group-item d-flex justify-content-between">
-									<div>
-										<h6 class="my-0">@details.Product.Name</h6>
-										<small class="text-muted">Quantity:@details.Count</small>
-									</div>
-									<span class="text-muted">@details.Product.Price * @details.Count </span>
-								</li>
-								}
+                    
 
-								<li class="list-group-item d-flex justify-content-between bg-light">
-									<small class="text-info">Total (&#x20B9)</small>
-									<strong class="text-info">@Model.OrderHeader.OrderTotal</strong>
-								</li>
-							</ul>
-							<input type="radio" id="cashOnDelivery" name="paymentMethod" value="cash">
-							<label for="cashOnDelivery">Cash on Delivery</label>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="card-footer">
-				<div class="row">
-					<div class="col-12 col-md-8 pt-2">
-						<p style="color:maroon; font-size:14px;">
-							Estimate Arrival Date:
-							@DateTime.Now.AddDays(7).ToShortDateString()- @DateTime.Now.AddDays(14).ToShortDateString()
+                    <div class="col-6 text-end">
+                        <a asp-action="Index" class="btn btn-outline-danger btn-sm">Back to Cart</a>
+                    </div>
+                </div>
+            </div>
 
-						</p>
-					</div>
-					<div class="col-12 col-md-4">
-						<button type="submit" value="Place Order" class="btn btn-primary form-control">Place Order</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="https://localhost:7208/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="https://localhost:7208/User/Cart">Cart</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Summary</li>
+                </ol>
+            </nav>
+
+
+            <div class="card-body">
+                <div class="container rounded p-2">
+                    <div class="row">
+                        <div class="col-12 col-lg-6 pb-4">
+                            <div class="row">
+                                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-info">Shipping Details:</span>
+                                </h4>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Name</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="OrderHeader.Name" class="form-control" data-address-field="Name" />
+                                    <span asp-validation-for="OrderHeader.Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Phone</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="OrderHeader.MobileNumber" class="form-control" data-address-field="PhoneNumber" />
+                                    <span asp-validation-for="OrderHeader.MobileNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Street Address</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="OrderHeader.StreetAddress" class="form-control" data-address-field="StreetAddress" />
+                                    <span asp-validation-for="OrderHeader.StreetAddress" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>City</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="OrderHeader.City" class="form-control" data-address-field="City" />
+                                    <span asp-validation-for="OrderHeader.City" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>State</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="OrderHeader.State" class="form-control" data-address-field="State" />
+                                    <span asp-validation-for="OrderHeader.State" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Postal Code</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="OrderHeader.PostalCode" class="form-control" data-address-field="PostalCode" />
+                                    <span asp-validation-for="OrderHeader.PostalCode" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <hr />
+                            <h5 class="text-center">OR</h5>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Previous Addresses:</label>
+                                </div>
+                                <div class="col-9">
+                                    <select id="previousAddressDropdown" class="form-control">
+                                        <option value="" selected>Select Previous Address</option>
+                                        @{
+                                            var uniqueAddresses = new HashSet<string>();
+                                            foreach (var address in ViewBag.PreviousAddresses)
+                                            {
+                                                if (uniqueAddresses.Add(address.Text))
+                                                {
+                                                    var parts = address.Text.Split('.');
+                                                    var serialNumber = parts[0]; // Extract serial number
+                                                    var addressText = parts.Length > 1 ? string.Join(".", parts[1..]) : parts[0];
+                                                    <option value="@address.Value" data-serial-number="@serialNumber">@address.Text</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-5 offset-lg-1">
+                            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-info mt-3">Order Summary:</span>
+                            </h4>
+                            <ul class="list-group mb-3">
+                                @foreach (var item in Model.ShoppingCartList)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <div class="d-none d-lg-block col-lg-1 text-center py-2">
+                                            <img src="@item.Product.ProductImages" class="rounded" width="100%" />
+                                        </div>
+                                        <div>
+                                            <h6 class="me-5 my-0">@item.Product.Name</h6>
+                                            <small class="me-5 text-muted">Quantity: @item.Count</small>
+                                        </div>
+                                        <span class="text-muted">@((item.Price * item.Count).ToString("c", new System.Globalization.CultureInfo("en-IN"))) </span>
+                                    </li>
+                                }
+                                <li class="list-group-item d-flex justify-content-between bg-light">
+                                    <small class="text-info">Total MRP (INR)</small>
+                                    <strong class="text-info">@Model.OrderHeader.OrderTotal.ToString("c", new System.Globalization.CultureInfo("en-IN"))</strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Coupon Discount
+                                    <span id="discountPrice"></span>
+                                </li>
+                               
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Total Amount:
+                                    <span id="newTotal">@Model.OrderHeader.OrderTotal.ToString("c", new System.Globalization.CultureInfo("en-IN"))</span>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Shipping Fee
+                                    <span>Free</span>
+                                </li>
+
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <input id="couponInput" asp-for="OrderHeader.CouponCode" class="form-control" aria-required="true" placeholder="Coupon" />
+                                    <input asp-for="OrderHeader.CouponId" hidden />
+                                    <a id="applyCouponButton" class="eyebrow underline action btn btn-primary">Check</a>
+                                    <a id="removeCouponButton" class="eyebrow underline action btn btn-danger ms-2">Remove</a>
+                                </li>
+                                <li class="list-group-item text-center ">
+                                    <a asp-area="User" asp-controller="UserCoupon" asp-action="Index">Click here for available Coupons</a>
+                                </li>
+                                <li class="list-group-item align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="walletCheckbox" value="ApplyWallet">
+                                        <label class="form-check-label" for="walletCheckbox">Check Wallet : &#x20B9; <span class="text-bg-light">@Model.ApplicationUser.Wallet</span> </label>
+                                        <div>
+                                            <span id="walletAmount"></span>
+                                            <span id="newWalletAmount"></span>
+                                        </div>
+                                        <div>
+                                            <span id="Message" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div>
+                                <span id="Message" class="text-bg-warning" style="display: block; text-align: center;">Select your payment method</span>
+
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="OrderHeader.PaymentMethod" value="COD" id="flexRadioDefault1">
+                                <label class="form-check-label" for="flexRadioDefault1">Cash On Delivery</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="OrderHeader.PaymentMethod" value="OnlinePayment" id="flexRadioDefault2" checked>
+                                <label class="form-check-label" for="flexRadioDefault2">Online Payment</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="OrderHeader.PaymentMethod" value="Wallet" id="flexRadioDefault2" checked>
+                                <label class="form-check-label" for="flexRadioDefault2">Wallet</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-12 col-md-8 pt-2">
+                        <p style="color:maroon; font-size:14px;">
+                            Estimate Arrival Date:
+                            @DateTime.Now.AddDays(7).ToShortDateString() - @DateTime.Now.AddDays(14).ToShortDateString()
+                        </p>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <button type="submit" value="Place Order" class="btn btn-primary form-control">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
+
+<script src="~/js/vendor.min.js"></script>
+<script src="~/js/app.js"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var originalTotalAmount = @Model.OrderHeader.OrderTotal;
+
+            $("#applyCouponButton").click(function () {
+                var coupon = $("#couponInput").val();
+                var totalAmount = @Model.OrderHeader.OrderTotal;
+                var url = "/User/Cart/Coupon?coupon=" + coupon + "&OrderTotal=" + totalAmount;
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    success: function (response) {
+                        if (response.success) {
+                            var discountPrice = response.discountPrice;
+                            var newTotal = response.newTotal;
+                            $("#discountPrice").text(discountPrice.toFixed(2));
+                            $("#newTotal").text(newTotal.toFixed(2));
+                        } else {
+                            console.log(response.errorMessage);
+                            toastr.error(response.errorMessage);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            $("#removeCouponButton").click(function () {
+                $("#discountPrice").text("");
+                $("#newTotal").text(originalTotalAmount.toFixed(2));
+                $("#couponInput").val("");
+            });
+
+            $('#walletCheckbox').change(function () {
+                if (this.checked) {
+                    applyWallet();
+                } else {
+                    notApplyWallet();
+                }
+            });
+        });
+
+        function applyWallet() {
+            var totalAmount = @Model.OrderHeader.OrderTotal;
+            var userId = '@Model.ApplicationUser.Id';
+            var url = "/User/Cart/CheckWallet?totalAmount=" + totalAmount + "&userId=" + userId;
+            $.ajax({
+                url: url,
+                method: 'POST',
+                success: function (response) {
+                    if (response.success) {
+                        var newWalletAmount = response.newWalletAmount;
+                        var Message = response.message;
+                        $("#newWalletAmount").text("New Wallet Amount :" + newWalletAmount.toFixed(2));
+                        $("#Message").text(Message);
+                    } else {
+                        var newWalletAmount = response.newWalletAmount;
+                        var Message = response.message;
+                        $("#newWalletAmount").text(newWalletAmount.toFixed(2));
+                        $("#Message").text(Message);
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function notApplyWallet() {
+            var totalAmount = @Model.OrderHeader.OrderTotal;
+            var userId = '@Model.ApplicationUser.Id';
+            var url = "/User/Cart/IsNotCheckWallet?totalAmount=" + totalAmount + "&userId=" + userId;
+            $.ajax({
+                url: url,
+                method: 'POST',
+                success: function (response) {
+                    if (response.success) {
+                        $("#Message").text('');
+                        $("#WalletAmount").text('');
+                        $("#newWalletAmount").text('');
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        //prvious address//
+        document.getElementById("previousAddressDropdown").addEventListener("change", function () {
+            var selectedAddress = this.options[this.selectedIndex].text;
+            var addressComponents = selectedAddress.split(',').map(function (component) {
+                return component.trim();
+            });
+            var elements = document.querySelectorAll('[data-address-field]');
+            var fieldMapping = {
+                "Name": 0,
+                "PhoneNumber": 5,
+                "StreetAddress": 1,
+                "City": 2,
+                "State": 3,
+                "PostalCode": 4
+            };
+            elements.forEach(function (element) {
+                var fieldName = element.dataset.addressField;
+                var fieldValue = addressComponents[fieldMapping[fieldName]];
+                if (fieldName === "PostalCode") {
+                    fieldValue = fieldValue.split(' ')[0];
+                }
+                element.value = fieldValue;
+            });
+        });
+    </script>
+}
+

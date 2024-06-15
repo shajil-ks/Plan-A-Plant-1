@@ -12,6 +12,126 @@ for details on configuring this project to bundle and minify static web assets. 
 
 }
 
+
+@keyframes textGlow {
+    0% {
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5), 0 0 10px rgba(255, 255, 255, 0.5), 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+
+    50% {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.8);
+    }
+
+    100% {
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5), 0 0 10px rgba(255, 255, 255, 0.5), 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+}
+
+.glow-text {
+    animation: textGlow 1.5s infinite alternate;
+    color: #fff; /* Ensure text is readable */
+    padding: 5px; /* Adjust as needed */
+    border-radius: 5px; /* Optional: to give a rounded effect */
+}
+
+
+
+body {
+    background-color: #eee;
+}
+
+.card {
+    border-radius: 15px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.rounded-circle {
+    border: 2px solid #1265f1;
+}
+
+.input-group {
+    max-width: 200px;
+}
+
+.btn-primary {
+    background-color: #1265f1;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #0f52b8;
+    }
+
+.text-primary {
+    color: #1265f1 !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+
+/*coupon..............*/
+
+.coupon-wrapper {
+    position: relative;
+    padding: 15px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.coupon-card {
+    position: relative;
+    padding: 20px;
+    border: 2px dashed #d3d3d3;
+    border-radius: 10px;
+}
+
+    .coupon-card::before {
+        content: "\2702";
+        font-size: 20px;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        background: white;
+        padding: 0 5px;
+        color: #d3d3d3;
+    }
+
+
+/*Coupon.....................*/
+
+
+/* filter icon....*/
+.bi-filter-right {
+    font-size: 1.5rem; /* Adjust the size of the icon */
+}
+
+h6 {
+    margin-bottom: 0;
+}
+
+
+/*filter icon.....*/
+
+
+/* cancellation reason */
+#cancellationReasonWarning {
+    color: #dc3545; /* Bootstrap danger color */
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* cancellation reason */
+
+
+
+
 /* Center align text in DataTable */
 table#tblData.dataTable td {
     text-align: center;
@@ -27,6 +147,75 @@ table#tblData.dataTable .btn-group {
     table#tblData.dataTable .btn-group .btn {
         margin: 0 5px; /* Adjust as needed */
     }
+
+
+.wishlist-icon {
+    font-size: 17px; /* Adjust the size as needed */
+    color:lightgreen; /* Make the icon transparent initially */
+    cursor: pointer; /* Show pointer cursor on hover */
+    transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.wishlist-icon:hover {
+    transform: scale(1.025); /* Scale the icon slightly larger on hover */
+}
+
+/* Define a class for filled heart icon */
+.filled {
+    color:red; /* Change the color to green when filled */
+}
+
+
+
+
+.product-card {
+    transition: transform 0.3s ease; /* Smooth transition for hover effect */
+}
+
+    .product-card:hover {
+        transform: scale(1.015); /* Scale the product card slightly larger on hover */
+    }
+
+    .product-card .card-body {
+        padding: 20px; /* Add padding to the card body */
+    }
+
+    
+
+.product-card-inner {
+    position: relative; /* Position inner elements relative to the product card */
+    overflow: hidden; /* Hide overflow content */
+    border: 1px solid #eee; /* Add a border for better separation */
+}
+
+
+.empty-wishlist {
+    text-align: center;
+    margin-top: 50px;
+}
+
+    .empty-wishlist img {
+        max-width: 80%;
+        margin-bottom: 20px;
+    }
+
+    .empty-wishlist .btn {
+        padding: 8px 20px;
+        font-size: 16px;
+    }
+
+.content-main {
+    padding-top: 50px;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+    .card:hover {
+        transform: translateY(-1px);
+    }
+
 
 
 

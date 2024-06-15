@@ -1,0 +1,65 @@
+﻿@model List<Coupon>
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="coupon-wrapper">
+                <div class="card coupon-card">
+                    <div class="cross-bg"></div>
+                    <div class="content">
+                        <div class="logo text-right">
+                            <img src="~/images/other/plan-a-plant-high-resolution-logo-transparent.png" width="100">
+                        </div>
+                        @if (item.DiscountAmount > 0)
+                        {
+                            <div class="text-center text-uppercase text-black">
+                                <span>Flat</span>
+                                <h1 class="mt-0">&#x20b9; @item.DiscountAmount</h1>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-uppercase text-black">
+                                <span>Flat</span>
+                                <h1 class="mt-0">@item.DiscountPercentage %</h1>
+                            </div>
+                        }
+                        <div class="px-5 mb-3">
+                            <div class="code text-center mt-4">
+                                @if (!string.IsNullOrEmpty(item.Code))
+                                {
+                                    <span>Use code: <span id="coupon-code-@item.Code">@item.Code</span></span>
+                                    <button class="btn btn-outline-primary btn-sm ml-2" onclick="copyToClipboard('@item.Code')">Copy Code</button>
+                                }
+                                else
+                                {
+                                    <span>No coupon code available.</span>
+                                }
+                            </div>
+                            <div class="code text-center mt-4">
+                                <span>IsValid: @item.IsValid</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if ((Array.IndexOf(Model.ToArray(), item) + 1) % 3 == 0)
+        {
+            <div class="w-100"></div> <!-- Add this line to clear the float and start a new row -->
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function copyToClipboard(text) {
+            var tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+        }
+    </script>
+}

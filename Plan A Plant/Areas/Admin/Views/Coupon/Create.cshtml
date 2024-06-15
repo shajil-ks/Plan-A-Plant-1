@@ -1,0 +1,131 @@
+﻿@model Plan_A_Plant.Models.Coupon
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-secondary bg-gradient py-3">
+                    <h2 class="text-white text-center">Create Coupon</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form id="couponForm" method="post">
+                        <div class="mb-3 row">
+                            <div class="col">
+                                <label asp-for="Code" class="form-label">Code</label>
+                                <input asp-for="Code" type="text" class="form-control" />
+                                <span asp-validation-for="Code" class="text-danger"></span>
+                            </div>
+                            <div class="col">
+                                <label asp-for="Description" class="form-label">Description</label>
+                                <input asp-for="Description" type="text" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+                            <div class="col">
+                                <label asp-for="Type" class="form-label">Discount Type</label>
+                                <select asp-for="Type" id="typeSelect" class="form-control">
+                                    <option value="" disabled selected>Select the Discount Type</option>
+                                    @foreach (var type in Enum.GetValues(typeof(Plan_A_Plant.Models.Coupon.DiscountType)))
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Type" class="text-danger"></span>
+                            </div>
+                            <div class="col" id="discountAmountField" style="display: none;">
+                                <label asp-for="DiscountAmount" class="form-label">Discount Amount</label>
+                                <input asp-for="DiscountAmount" type="text" class="form-control" />
+                                <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+                            </div>
+                            <div class="col" id="discountPercentageField" style="display: none;">
+                                <label asp-for="DiscountPercentage" class="form-label">Discount Percentage</label>
+                                <input asp-for="DiscountPercentage" type="text" class="form-control" />
+                                <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row">
+                            <div class="col">
+                                <label asp-for="MinimumAmount" class="form-label">Minimum Amount</label>
+                                <input asp-for="MinimumAmount" type="text" class="form-control" />
+                                <span asp-validation-for="MinimumAmount" class="text-danger"></span>
+                            </div>
+                            <div class="col">
+                                <label asp-for="MaximumAmount" class="form-label">Maximum Amount</label>
+                                <input asp-for="MaximumAmount" type="text" class="form-control" />
+                                <span asp-validation-for="MaximumAmount" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
+                            <input asp-for="ExpiryDate" type="text" class="form-control" id="expiryDatePicker" />
+                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="row pt-2 mb-5">
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary form-control">Create</button>
+                            </div>
+                            <div class="col">
+                                <a asp-controller="Coupon" asp-action="Index" class="btn btn-outline-secondary form-control">Back To List</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var typeSelect = document.getElementById("typeSelect");
+            var discountAmountField = document.getElementById("discountAmountField");
+            var discountPercentageField = document.getElementById("discountPercentageField");
+
+            typeSelect.addEventListener("change", function () {
+                if (typeSelect.value === "DiscountAmount") {
+                    discountAmountField.style.display = "block";
+                    discountPercentageField.style.display = "none";
+                } else if (typeSelect.value === "DiscountPercentage") {
+                    discountAmountField.style.display = "none";
+                    discountPercentageField.style.display = "block";
+                } else {
+                    discountAmountField.style.display = "none";
+                    discountPercentageField.style.display = "none";
+                }
+            });
+
+            // Trigger the change event initially to set the initial state
+            typeSelect.dispatchEvent(new Event("change"));
+
+            // Add form submit event listener
+            document.getElementById("couponForm").addEventListener("submit", function (event) {
+                if ((typeSelect.value === "DiscountAmount" && !document.getElementById("DiscountAmount").value) ||
+                    (typeSelect.value === "DiscountPercentage" && !document.getElementById("DiscountPercentage").value)) {
+                    event.preventDefault(); // Prevent form submission
+                    alert("Please enter Discount Amount or Percentage.");
+                }
+            });
+        });
+    </script>
+}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr('#expiryDatePicker', {
+
+        enableTime: false,
+        minDate: 'today',
+        dateFormat: 'Y-m-d', // Set the date format
+        onClose: function (selectedDates, dateStr, instance) {
+            // Update the value of the input field to match the selected format
+            instance.input.value = dateStr;
+        }
+    });
+</script>

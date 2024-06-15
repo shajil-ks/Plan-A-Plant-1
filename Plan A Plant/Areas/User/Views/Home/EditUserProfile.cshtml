@@ -1,0 +1,74 @@
+﻿@model ApplicationUser
+
+@section css {
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    @* <link rel="stylesheet" href="~/css/site.css" /> *@
+}
+
+<section class="vh-100 gradient-custom">
+    <div class="container py-5 h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-12 col-lg-9 col-xl-7">
+                <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">Edit User Profile</h3>
+                        <form method="post">
+                            <input asp-for="Id" hidden />
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="form-outline">
+                                        <input asp-for="Name" class="form-control form-control-lg" />
+                                        <label asp-for="Name" class="form-label">User Name</label>
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="form-outline">
+                                        <input asp-for="PhoneNumber" class="form-control form-control-lg" />
+                                        <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="form-outline">
+                                        <input asp-for="StreetAddress" class="form-control form-control-lg" />
+                                        <label asp-for="StreetAddress" class="form-label">Street Address</label>
+                                        <span asp-validation-for="StreetAddress" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="form-outline">
+                                        <input asp-for="City" class="form-control form-control-lg" />
+                                        <label asp-for="City" class="form-label">City</label>
+                                        <span asp-validation-for="City" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="form-outline">
+                                        <input asp-for="State" class="form-control form-control-lg" />
+                                        <label asp-for="State" class="form-label">State</label>
+                                        <span asp-validation-for="State" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="form-outline">
+                                        <input asp-for="PostalCode" class="form-control form-control-lg" />
+                                        <label asp-for="PostalCode" class="form-label">Postal Code</label>
+                                        <span asp-validation-for="PostalCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-2">
+                                <input class="btn btn-primary btn-lg" type="submit" value="Save" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

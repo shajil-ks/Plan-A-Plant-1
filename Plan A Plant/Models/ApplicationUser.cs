@@ -16,6 +16,15 @@ namespace Plan_A_Plant.Models
         [Required]  
         public string? PostalCode { get; set; }  
 
+        public int? Wallet {  get; set; }    
+
+        public string WalletSessionId { get; set; } 
+
+        public string WalletPaymentIntentId { get; set; }
+
+        public string UsedCoupons { get; set; }
+
+
 
     }
 }
