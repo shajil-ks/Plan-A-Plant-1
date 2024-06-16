@@ -7,6 +7,7 @@ using Plan_A_Plant.Utility;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Stripe;
 using Microsoft.IdentityModel.Tokens;
+using Plan_A_Plant.DbInitializer;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,7 +60,7 @@ builder.Services.AddSingleton(emailConfig);
 
 
 builder.Services.AddControllers();
-
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
@@ -91,9 +92,19 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
+SeedDatabase();
 app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{area=User}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+void SeedDatabase()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        dbInitializer.Initialize();
+    }
+}
