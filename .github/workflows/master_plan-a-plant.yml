@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - PlanAplant
+name: Build and deploy ASP.Net Core app to Azure Web App - Plan-A-Plant
 
 on:
   push:
@@ -52,15 +52,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_477FB37BA7924DBF87DBF9B35A514B6D }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_55CC54D367CA4C508AF20BE8031407F1 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BDC791FE9C34496284F386AF4605EC0F }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_04E5F8B7B38E4D0BB75A9FC1C5060B95 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7C260F94D98C47E48194380564516114 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_212445232EA141669418AD9C47D7AACC }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'PlanAplant'
+          app-name: 'Plan-A-Plant'
           slot-name: 'Production'
           package: .
           
