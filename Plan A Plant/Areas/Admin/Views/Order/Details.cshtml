@@ -11,7 +11,7 @@
                         <i class="fas fa-shopping-cart"></i> &nbsp; Order Summary
                     </div>
                     <div class="col-12 col-md-4 offset-md-2 text-right">
-                       
+
                         <a asp-action="Index" class="btn btn-outline-info form-control btn-sm">
                             Back to Orders
                         </a>
@@ -151,7 +151,7 @@
                                     {
                                         <input asp-for="OrderHeader.Carrier" readonly type="text" class="form-control" />
                                     }
-                                    
+
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -165,7 +165,7 @@
                                     {
                                         <input asp-for="OrderHeader.TrackingNumber" readonly type="text" class="form-control" />
                                     }
-                                   
+
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -183,64 +183,9 @@
                                 </div>
                             </div>
 
-                            @* <div class="row my-1">
-                            <div class="col-3">Session ID</div>
-                            <div class="col-9">
-                            @if (User.IsInRole(SD.Role_User))
-                            {
-                            <input asp-for="OrderHeader.S" readonly type="text" class="form-control" />
-                            }
-                            else
-                            {
-                            <input asp-for="OrderHeader.State" readonly type="text" class="form-control" />
-                            }
-                            <span asp-validation-for="OrderHeader.State" class="text-danger"></span>
-                            </div>
-                            </div>
-                            <div class="row my-1">
-                            <div class="col-3">Payment Intent ID</div>
-                            <div class="col-9">
-                            @if (User.IsInRole(SD.Role_User))
-                            {
-                            <input asp-for="OrderHeader.PaymentIntent" readonly type="text" class="form-control" />
-                            }
-                            else
-                            {
-                            <input asp-for="OrderHeader.PaymentIntent" readonly type="text" class="form-control" />
-                            }
-                            <span asp-validation-for="OrderHeader.PaymentIntent" class="text-danger"></span>
-                            </div>
-                            </div> *@
 
-                            <div class="row my-1">
 
-                                @*  <div class="col-3">Payment Due Date</div>
-                                <div class="col-9">
-                                @if (User.IsInRole(SD.Role_User))
-                                {
-                                <input asp-for="OrderHeader.PaymentDueDate" readonly type="text" class="form-control" />
-                                }
-                                else
-                                {
-                                <input asp-for="OrderHeader.PaymentDueDate" readonly type="text" class="form-control" />
-                                }
-                                <span asp-validation-for="OrderHeader.PaymentDueDate" class="text-danger"></span>
-                                </div>
 
-                                <div class="col-3">Payment Date</div>
-                                <div class="col-9">
-                                @if (User.IsInRole(SD.Role_User))
-                                {
-                                <input asp-for="OrderHeader.PaymentDate" readonly type="text" class="form-control" />
-                                }
-                                else
-                                {
-                                <input asp-for="OrderHeader.PaymentDate" readonly type="text" class="form-control" />
-                                }
-                                <span asp-validation-for="OrderHeader.PaymentDate" class="text-danger"></span>
-                                </div> *@
-
-                            </div>
                             <div class="row my-1">
                                 <div class="col-3">Payment Status</div>
                                 <div class="col-9">
@@ -256,12 +201,12 @@
                                 </div>
                             </div>
 
-                            
 
 
 
 
-                           @*  <input type="submit" class="btn btn-warning form-control my-1" value="Update Order Details" /> *@
+
+
 
                         </div>
                         <div class="col-12 col-lg-5 offset-lg-1">
@@ -271,8 +216,14 @@
                             <label class="btn btn-outline-primary form-control my-2">Order Status - @Model.OrderHeader.OrderStatus</label>
 
                             <ul class="list-group mb-3">
+                                @{
+                                    double subtotal = 0;
+                                    int sn = 1;
+                                }
                                 @foreach (var detail in Model.OrderDetail)
                                 {
+                                    var grossAmount = detail.Count * detail.Price;
+                                    subtotal += grossAmount;
                                     <li class="list-group-item d-flex justify-content-between p-2">
                                         <div class="row container">
                                             <div class="col-8">
@@ -282,24 +233,29 @@
                                                 <small class="text-muted">Quantity :@detail.Count </small>
                                             </div>
                                             <div class="col-4 text-end">
-                                                <p class="text-success">@((detail.Count * detail.Price))</p>
+                                                <p class="text-success">@grossAmount</p>
                                             </div>
                                         </div>
                                     </li>
+                                    sn++;
                                 }
-                                <li class="list-group-item bg-primary">
+                                <li class="list-group-item bg-primary-subtle">
                                     <div class="row container">
-                                        <div class="col-6">
-                                            <h5 class="text-white">TOTAL(&#x20B9) </h5>
+                                        <div class="col-8">
+                                            <h6 class="text-black">Sub Total </h6><br />
+                                            <h6 class="text-black">Coupon Discount </h6><hr />
+                                            <h5 class="text-black">Total(&#x20B9) </h5>
                                         </div>
-                                        <div class="col-6 text-end">
-                                            <h5 class="text-white">@Model.OrderHeader.OrderTotal</h5>
+                                        <div class="col-4 text-end">
+                                            <h6 class="text-black">@subtotal</h6><br />
+                                            <h6 class="text-black-50">@(Model.OrderHeader.OrderTotal - subtotal)</h6><hr />
+                                            <h5 class="text-danger">@Model.OrderHeader.OrderTotal</h5>
                                         </div>
                                     </div>
                                 </li>
                             </ul>
                             @if (Model.OrderHeader.CancellationStatus == SD.StatusPending && User.IsInRole(SD.Role_Admin))
-           
+
                             {
                                 <div class="row my-1">
                                     <div class="col-3">Cancellation Reason</div>
@@ -316,10 +272,12 @@
 
                             @if (User.IsInRole(SD.Role_Admin))
                             {
-                                @if (Model.OrderHeader.OrderStatus == SD.StatusApproved && Model.OrderHeader.CancellationStatus !=SD.StatusPending)
+                                @if (Model.OrderHeader.OrderStatus == SD.StatusApproved && Model.OrderHeader.CancellationStatus != SD.StatusPending)
                                 {
                                     <button type="submit" asp-action="StartProcessing"
-                                        class="btn btn-primary form-control my-1">Start Processing</button>
+                                            class="btn btn-primary form-control my-1">
+                                        Start Processing
+                                    </button>
                                 }
                                 @if (Model.OrderHeader.OrderStatus == SD.StatusInProcess)
                                 {
@@ -336,14 +294,14 @@
                                 }
 
                             }
-                            @if (Model.OrderHeader.OrderStatus != SD.StatusRefunded  &&
-                            Model.OrderHeader.OrderStatus != SD.StatusCancelled && User.IsInRole(SD.Role_User) && Model.OrderHeader.CancellationStatus !=SD.StatusPending)
+                            @if (Model.OrderHeader.OrderStatus != SD.StatusRefunded && Model.OrderHeader.OrderStatus != SD.StatusDelivered &&
+                            Model.OrderHeader.OrderStatus != SD.StatusCancelled && User.IsInRole(SD.Role_User) && Model.OrderHeader.CancellationStatus != SD.StatusPending)
 
                             {
-                                
+
                                 <div class="form-group">
                                     <label>Cancellation Reason</label>
-                                    
+
                                     <select name="reason" id="cancellationReason" class="form-control" required>
                                         <option value="">Select a reason</option>
                                         <option value="Found a better price elsewhere">Found a better price elsewhere</option>
@@ -364,27 +322,26 @@
 
 
                             }
-                            
-                            @if (Model.OrderHeader.OrderStatus != SD.StatusRefunded  &&
-                            Model.OrderHeader.OrderStatus != SD.StatusCancelled && User.IsInRole(SD.Role_Admin) && Model.OrderHeader.CancellationStatus !=SD.StatusPending)
+
+                            @if (Model.OrderHeader.OrderStatus != SD.StatusRefunded &&
+                            Model.OrderHeader.OrderStatus != SD.StatusCancelled && User.IsInRole(SD.Role_Admin) && Model.OrderHeader.CancellationStatus != SD.StatusPending)
 
                             {
                                 <button type="submit" asp-action="CancelOrder" class="btn btn-danger form-control my-1">Cancel Order</button>
 
                             }
 
-                            @if (Model.OrderHeader.CancellationStatus==SD.StatusPending
+                            @if (Model.OrderHeader.CancellationStatus == SD.StatusPending
                             && User.IsInRole(SD.Role_Admin))
                             {
                                 <div class="mt-3">
                                     <button type="submit" asp-action="ApproveCancellation" class="btn btn-success">Approve</button>
-                                   @*  <button type="submit" asp-action="RejectCancellation" class="btn btn-danger">Reject</button> *@
                                 </div>
-                                
+
                             }
-                           
-                                
-                            
+
+
+
                         </div>
                     </div>
                 </div>
@@ -399,8 +356,10 @@
     {
         @if (Model.OrderHeader.OrderStatus == SD.StatusShipped || Model.OrderHeader.OrderStatus == SD.StatusDelivered)
         {
-            <button class="btn btn-outline-primary 
-form-control my-1" asp-action="Invoice" asp-controller="Order" asp-route-orderId="@Model.OrderHeader.Id">Download Invoice</button>
+            <button class="btn btn-outline-primary
+form-control my-1" asp-action="Invoice" asp-controller="Order" asp-route-orderId="@Model.OrderHeader.Id">
+                Download Invoice
+            </button>
         }
     }
 
@@ -410,11 +369,11 @@ form-control my-1" asp-action="Invoice" asp-controller="Order" asp-route-orderId
 
 <form method="post">
     <input asp-for="OrderHeader.Id" hidden />
-@if (Model.OrderHeader.PaymentMethod == SD.PaymentMethodOnline.ToString() && Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayPayment)
-{
-    <button type="submit" asp-action="ContinuePayment" class="btn btn-primary form-control my-1">Continue Payment</button>
+    @if (Model.OrderHeader.PaymentMethod == SD.PaymentMethodOnline.ToString() && Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayPayment)
+    {
+        <button type="submit" asp-action="ContinuePayment" class="btn btn-primary form-control my-1">Continue Payment</button>
 
-}
+    }
 </form>
 
 
@@ -454,10 +413,9 @@ form-control my-1" asp-action="Invoice" asp-controller="Order" asp-route-orderId
         }
 
 
-       
+
     </script>
 }
-@*   Model.OrderHeader.OrderStatus != SD.StatusShipped  *@
 
 
 
