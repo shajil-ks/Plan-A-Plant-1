@@ -9,5 +9,7 @@
         public ApplicationUser ApplicationUser { get; set; }    
         public List<Coupon> CouponList { get; set; }
 
+        public MultipleAddress MultipleAddress { get; set; }
+
     }
 }

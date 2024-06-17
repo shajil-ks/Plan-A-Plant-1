@@ -1,0 +1,72 @@
+﻿@model MultipleAddress
+
+<div class="d-flex justify-content-center mt-3 mx-3" style="margin-top: 25px;">
+    <div class="col-md-9">
+        <div class="card card-custom pb-4">
+            <div class="card-body mt-0 mx-5">
+                <div class="text-center mb-3 pb-2 mt-3">
+                    <h4 style="color: #495057;">Delivery Details</h4>
+                </div>
+
+                <form method="post" class="mb-0">
+                    <div class="row mb-4">
+                        <div class="col">
+                            <div class="form-outline">
+                                <input asp-for="Name" type="text" id="form9Example1" class="form-control input-custom" />
+                                <label asp-for="Name" class="form-label" for="form9Example1">Name</label>
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-outline">
+                                <input asp-for="MobileNumber" type="text" id="form9Example2" class="form-control input-custom" />
+                                <label asp-for="MobileNumber" class="form-label" for="form9Example2">Phone Number</label>
+                                <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col">
+                            <div class="form-outline">
+                                <input asp-for="StreetAddress" type="text" id="form9Example6" class="form-control input-custom" />
+                                <label asp-for="StreetAddress" class="form-label" for="form9Example6">Address</label>
+                                <span asp-validation-for="StreetAddress" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-outline">
+                                <input asp-for="PostalCode" type="text" id="form9Example4" class="form-control input-custom" />
+                                <label asp-for="PostalCode" class="form-label" for="form9Example4">Postal Code</label>
+                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col">
+                            <div class="form-outline">
+                                <input asp-for="City" type="text" id="form9Example3" class="form-control input-custom" />
+                                <label asp-for="City" class="form-label" for="form9Example3">City</label>
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-outline">
+                                <input asp-for="State" type="text" id="typeEmail" class="form-control input-custom" />
+                                <label asp-for="State" class="form-label" for="typeEmail">State</label>
+                                <span asp-validation-for="State" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <!-- Cancel button -->
+                        <a href="javascript:history.back()" class="btn btn-secondary btn-rounded">Cancel</a>
+                        <!-- Submit button -->
+                        <button type="submit" class="btn btn-primary btn-rounded" style="background-color: #0062CC;">
+                            Add Address
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

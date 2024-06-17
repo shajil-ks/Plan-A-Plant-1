@@ -19,6 +19,8 @@
         ICouponRepository Coupon { get; }   
 
         IOfferRepository Offer { get; } 
+
+        IMultipleAddressRepository MultipleAddress { get; } 
        
         void Save();
     }

@@ -57,7 +57,8 @@ namespace Plan_A_Plant.Areas.User.Controllers
         }
 
 
-        public IActionResult Summary()
+
+        public IActionResult Summary(int? id)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -72,15 +73,28 @@ namespace Plan_A_Plant.Areas.User.Controllers
                 CouponList = _unitOfWork.Coupon.GetAll().ToList(),
                 ApplicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId)
             };
+            if (id == null)
+            {
 
-            ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
-            ShoppingCartVM.OrderHeader.Name = ShoppingCartVM.OrderHeader.ApplicationUser.Name;
-            ShoppingCartVM.OrderHeader.MobileNumber = ShoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
-            ShoppingCartVM.OrderHeader.City = ShoppingCartVM.OrderHeader.ApplicationUser.City;
-            ShoppingCartVM.OrderHeader.StreetAddress = ShoppingCartVM.OrderHeader.ApplicationUser.StreetAddress;
-            ShoppingCartVM.OrderHeader.PostalCode = ShoppingCartVM.OrderHeader.ApplicationUser.PostalCode;
-            ShoppingCartVM.OrderHeader.State = ShoppingCartVM.OrderHeader.ApplicationUser.State;
+                ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+                ShoppingCartVM.OrderHeader.Name = ShoppingCartVM.OrderHeader.ApplicationUser.Name;
+                ShoppingCartVM.OrderHeader.MobileNumber = ShoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
+                ShoppingCartVM.OrderHeader.City = ShoppingCartVM.OrderHeader.ApplicationUser.City;
+                ShoppingCartVM.OrderHeader.StreetAddress = ShoppingCartVM.OrderHeader.ApplicationUser.StreetAddress;
+                ShoppingCartVM.OrderHeader.PostalCode = ShoppingCartVM.OrderHeader.ApplicationUser.PostalCode;
+                ShoppingCartVM.OrderHeader.State = ShoppingCartVM.OrderHeader.ApplicationUser.State;
+            }
+            else
+            {
+                ShoppingCartVM.MultipleAddress = _unitOfWork.MultipleAddress.Get(u => u.Id == id);
 
+                ShoppingCartVM.OrderHeader.Name = ShoppingCartVM.MultipleAddress.Name;
+                ShoppingCartVM.OrderHeader.MobileNumber = ShoppingCartVM.MultipleAddress.MobileNumber;
+                ShoppingCartVM.OrderHeader.City = ShoppingCartVM.MultipleAddress.City;
+                ShoppingCartVM.OrderHeader.StreetAddress = ShoppingCartVM.MultipleAddress.StreetAddress;
+                ShoppingCartVM.OrderHeader.PostalCode = ShoppingCartVM.MultipleAddress.PostalCode;
+                ShoppingCartVM.OrderHeader.State = ShoppingCartVM.MultipleAddress.State;
+            }
             ShoppingCartVM.OrderHeader.OrderTotal = 0; // Reset the order total before calculating
 
             // Validate cart items count and product stock
@@ -108,27 +122,13 @@ namespace Plan_A_Plant.Areas.User.Controllers
             }
 
 
-            // Populate the dropdown options for previous addresses
-            var previousAddresses = _unitOfWork.OrderHeader
-                .GetAll(o => o.ApplicationUserId == userId)
-                .Select(o => new SelectListItem
-                {
-                    Text = $"{o.Name}, {o.StreetAddress}, {o.City}, {o.State}, {o.PostalCode}, {o.MobileNumber}",
-                    Value = o.StreetAddress // You can set this to any unique identifier of the address if needed
-                })
-                .Distinct() // Remove duplicates
-                .ToList();
-
-            // Pass the error message, if any, to the view
-            ViewBag.ErrorMessage = TempData["Message"];
-
-            // Populate the dropdown options
-            ViewBag.PreviousAddresses = previousAddresses;
-
+            
            
             return View(ShoppingCartVM);
 
         }
+
+       
 
 
 

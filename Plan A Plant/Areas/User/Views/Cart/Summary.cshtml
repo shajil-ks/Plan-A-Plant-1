@@ -93,31 +93,11 @@
                                     <span asp-validation-for="OrderHeader.PostalCode" class="text-danger"></span>
                                 </div>
                             </div>
-                            <hr />
-                            <h5 class="text-center">OR</h5>
-                            <div class="row my-1">
-                                <div class="col-3">
-                                    <label>Previous Addresses:</label>
-                                </div>
-                                <div class="col-9">
-                                    <select id="previousAddressDropdown" class="form-control">
-                                        <option value="" selected>Select Previous Address</option>
-                                        @{
-                                            var uniqueAddresses = new HashSet<string>();
-                                            foreach (var address in ViewBag.PreviousAddresses)
-                                            {
-                                                if (uniqueAddresses.Add(address.Text))
-                                                {
-                                                    var parts = address.Text.Split('.');
-                                                    var serialNumber = parts[0]; // Extract serial number
-                                                    var addressText = parts.Length > 1 ? string.Join(".", parts[1..]) : parts[0];
-                                                    <option value="@address.Value" data-serial-number="@serialNumber">@address.Text</option>
-                                                }
-                                            }
-                                        }
-                                    </select>
-                                </div>
+                            <hr /><h5 class="text-center">OR</h5>
+                            <div class="row justify-content-center">
+                                <a asp-area="User" asp-controller="MultipleAddress" asp-action="Index" class="btn btn-warning mt-3 text-center">Add Address</a>
                             </div>
+
                         </div>
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -127,9 +107,6 @@
                                 @foreach (var item in Model.ShoppingCartList)
                                 {
                                     <li class="list-group-item d-flex justify-content-between">
-                                        <div class="d-none d-lg-block col-lg-1 text-center py-2">
-                                            <img src="@item.Product.ProductImages" class="rounded" width="100%" />
-                                        </div>
                                         <div>
                                             <h6 class="me-5 my-0">@item.Product.Name</h6>
                                             <small class="me-5 text-muted">Quantity: @item.Count</small>
@@ -311,30 +288,7 @@
             });
         }
 
-        //prvious address//
-        document.getElementById("previousAddressDropdown").addEventListener("change", function () {
-            var selectedAddress = this.options[this.selectedIndex].text;
-            var addressComponents = selectedAddress.split(',').map(function (component) {
-                return component.trim();
-            });
-            var elements = document.querySelectorAll('[data-address-field]');
-            var fieldMapping = {
-                "Name": 0,
-                "PhoneNumber": 5,
-                "StreetAddress": 1,
-                "City": 2,
-                "State": 3,
-                "PostalCode": 4
-            };
-            elements.forEach(function (element) {
-                var fieldName = element.dataset.addressField;
-                var fieldValue = addressComponents[fieldMapping[fieldName]];
-                if (fieldName === "PostalCode") {
-                    fieldValue = fieldValue.split(' ')[0];
-                }
-                element.value = fieldValue;
-            });
-        });
+       
     </script>
 }
 

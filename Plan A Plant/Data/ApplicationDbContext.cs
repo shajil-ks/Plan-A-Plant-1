@@ -28,6 +28,8 @@ namespace Plan_A_Plant.Data
 
         public DbSet<Offer> Offers { get; set; }
 
+        public DbSet<MultipleAddress> MultipleAddresses { get; set; }   
+
         //to seed data to caterory
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {       
