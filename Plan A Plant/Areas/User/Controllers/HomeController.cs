@@ -174,6 +174,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
             }
             return View();
         }
+
         [HttpPost]
         public IActionResult EditUserProfile(ApplicationUser applicationUser)
         {
@@ -181,10 +182,9 @@ namespace Plan_A_Plant.Areas.User.Controllers
             _unitOfWork.ApplicationUser.Update(applicationUser);
             _unitOfWork.Save();
             return RedirectToAction(nameof(UserProfile));
+        }  
 
-
-        }
-
+            
 
 
 

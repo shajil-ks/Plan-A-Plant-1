@@ -169,6 +169,7 @@ namespace Plan_A_Plant.Areas.Identity.Pages.Account
                 user.PhoneNumber = Input.MobileNumber;
                 user.PostalCode = Input.PostalCode; 
                 user.State= Input.State;
+                user.Wallet = 0;
                 user.EmailConfirmed = false;
                 user.TwoFactorEnabled = true;//twofactor enable
 
