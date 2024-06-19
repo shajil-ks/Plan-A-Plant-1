@@ -1,5 +1,4 @@
 ﻿@model DashboardVM
-@using System.Globalization
 
 <section class="content-main">
     <div class="content-header">
@@ -19,7 +18,7 @@
                     <span class="icon icon-sm rounded-circle bg-primary-light"><i class="text-primary material-icons md-monetization_on"></i></span>
                     <div class="text">
                         <h6 class="mb-1 card-title">Revenue</h6>
-                        <span>@Model.TotalSales.ToString("c", new System.Globalization.CultureInfo("en-IN"))</span>
+                        <span>&#x20B9;@Model.TotalSales</span>
                         <span class="text-sm">
                             The Entire Total Amount
                         </span>
@@ -46,9 +45,8 @@
                     <span class="icon icon-sm rounded-circle bg-warning-light"><i class="text-warning material-icons md-qr_code"></i></span>
                     <div class="text">
                         <h6 class="mb-1 card-title">Products</h6> <span>@Model.ProductCount</span>
-                       @*  <span class="text-sm">
-                            @Model.CategoryCount Categories.
-                        </span> *@
+                        
+                        
                     </div>
                 </article>
             </div>
@@ -64,7 +62,7 @@
                 </article>
             </div>
         </div>
-
+        
 
     </div>
     @* .................................................................................. *@
@@ -105,7 +103,7 @@
                 <article class="icontext">
                     <span class="icon icon-sm rounded-circle bg-warning-light"><i class="text-warning material-icons md-qr_code"></i></span>
                     <div class="text">
-                        <h6 class="mb-1 card-title">Cancelled </h6> <span>@Model.CancelledCount</span>
+                        <a class="mb-1 card-title text-decoration-none" asp-controller="Order" asp-action="Wallet">Cancelled </a><br /> <span>@Model.CancelledCount</span>
                         <span class="text-sm">
                             Products that are Cancelled.
                         </span>
@@ -119,7 +117,7 @@
                     <div class="notification-dot bg-success blinking-dot"></div>
                     <span class="icon icon-sm rounded-circle bg-info-light bg-success-light"><i class="text-primary material-icons md-monetization_on"></i></span>
                     <div class="text">
-                        <h6 class="mb-1 card-title">Weekly Earning</h6> <span>@Model.TotalRevenueLastWeek</span>
+                        <h6 class="mb-1 card-title">Weekly Earning</h6> <span>@Model.TotalRevenueThisWeek</span>
                         <span class="text-sm">
                             Weekly Revenue.
                         </span>
@@ -133,6 +131,14 @@
             <div class="card mb-4">
                 <article class="card-body">
                     <h5 class="card-title">Sale statistics</h5>
+                    <select id="filterSelect">
+                            <option >Select</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+
                     <canvas id="myChart" height="80px"></canvas>
                 </article>
             </div>
@@ -175,32 +181,13 @@
                                         @order.OrderDate.Date.ToShortDateString()
                                     </td>
                                     <td>
-                                        @order.OrderTotal.ToString("c", new System.Globalization.CultureInfo("en-IN"))
+                                        &#x20B9;@order.OrderTotal
                                     </td>
-                                    @if (order.PaymentStatus == SD.PaymentStatusApproved)
-                                    {
-                                        <td>
-                                            <span class="badge badge-pill badge-soft-success">@order.PaymentStatus</span>
-                                        </td>
-                                    }
-                                    else if (order.PaymentStatus == SD.StatusCancelled)
-                                    {
-                                        <td>
-                                            <span class="badge badge-pill badge-soft-danger">@order.PaymentStatus</span>
-                                        </td>
-                                    }
-                                    else if (order.PaymentStatus == SD.StatusPending)
-                                    {
-                                        <td>
-                                            <span class="badge badge-pill badge-soft-warning">@order.PaymentStatus</span>
-                                        </td>
-                                    }
-                                    else if (order.PaymentStatus == SD.StatusRefunded)
-                                    {
-                                        <td>
-                                            <span class="badge badge-pill badge-soft-info">@order.PaymentStatus</span>
-                                        </td>
-                                    }
+
+                                    <td>
+                                        <span class="badge badge-pill badge-soft-info">@order.PaymentStatus</span>
+                                    </td>
+                                    
                                     <td>
                                         @order.MobileNumber
                                     </td>
@@ -243,17 +230,79 @@
         </nav>
     </div>
 
+    <div class="card mb-4 col-md-12 mr-">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                    <h4 class="card-title">Products</h4>
+                </div>
+                <div class="col-md-2 col-6">
+                    <a asp-action="Index" asp-controller="Product" class="btn btn-primary btn-sm">Product Stocks</a>
+                </div>
+            </div>
+        </header>
+        <div class="card-body">
+            <div class="table-responsive">
+                <div class="table-responsive">
+                    <table class="table align-middle table-nowrap mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="align-middle" scope="col">Product ID</th>
+                                <th class="align-middle" scope="col">Product Name</th>
+                                <th class="align-middle" scope="col">Amount</th>
+                                <th class="align-middle" scope="col">Quantity</th>
+                                <th class="align-middle" scope="col">Quantity Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var order in Model.product)
+                            {
+                                @if (order.Qty <= 0 || order.Qty <= 5)
+                                {
+                                    <tr>
+
+                                        <td><a href="#" class="fw-bold"></a>@order.Id</td>
+                                        <td>@order.Name</td>
+                                        <td>
+                                            &#x20B9;@order.Price
+                                        </td>
+                                        <td>
+                                            @order.Qty
+                                        </td>
+                                        @if (order.Qty <= 0)
+                                        {
+                                            <td>
+                                                <span class="badge badge-pill badge-soft-danger">Out Of Stock</span>
+                                            </td>
+                                        }
+                                        else if (order.Qty <= 5 && order.Qty != 0)
+                                        {
+                                            <td>
+                                                <span class="badge badge-pill badge-soft-warning">Few More left</span>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     @*  .................................................................................................................... *@
     <div class="col-md-12 row mb-5">
-        <div class="card mb-4 col-md-7 mr-">
+        <div class="card mb-4 col-md-6">
             <header class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                        <h4 class="card-title">Products</h4>
+                <div class="row">
+                    <div class="col-md-6 me-auto mb-md-0 mb-3">
+                        <h5 class="card-title fw-bold">Top 5 Products </h5>
                     </div>
                     <div class="col-md-2 col-6">
-                        <a asp-action="Index" asp-controller="Product" class="btn btn-primary btn-sm">Product Stocks</a>
+                        <a asp-action="Index" asp-controller="Product" class="btn btn-primary btn-xs">View</a>
                     </div>
                 </div>
             </header>
@@ -261,45 +310,19 @@
                 <div class="table-responsive">
                     <div class="table-responsive">
                         <table class="table align-middle table-nowrap mb-0">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
-                                    <th class="align-middle" scope="col">Product ID</th>
-                                    <th class="align-middle" scope="col">Product Name</th>
-                                    <th class="align-middle" scope="col">Amount</th>
-                                    <th class="align-middle" scope="col">Quantity</th>
-                                    <th class="align-middle" scope="col">Quantity Status</th>
+                                    <th>Product Name</th>
+                                    <th>Quantity Sold</th>
                                 </tr>
                             </thead>
                             <tbody>
-
-                                @foreach (var order in Model.product)
+                                @foreach (var product in Model.TopSellingProducts)
                                 {
-                                    @if (order.Qty <= 0 || order.Qty <= 5)
-                                    {
-                                        <tr>
-
-                                            <td><a href="#" class="fw-bold"></a>@order.Id</td>
-                                            <td>@order.Name</td>
-                                            <td>
-                                                @order.Price.ToString("c", new System.Globalization.CultureInfo("en-IN"))
-                                            </td>
-                                            <td>
-                                                @order.Qty
-                                            </td>
-                                            @if (order.Qty <= 0)
-                                            {
-                                                <td>
-                                                    <span class="badge badge-pill badge-soft-danger">Out Of Stock</span>
-                                                </td>
-                                            }
-                                            else if (order.Qty <= 5 && order.Qty != 0)
-                                            {
-                                                <td>
-                                                    <span class="badge badge-pill badge-soft-warning">Few More left</span>
-                                                </td>
-                                            }
-                                        </tr>
-                                    }
+                                    <tr>
+                                        <td>@product.Name</td>
+                                        <td>@Model.ProductQuantitiesSold.GetValueOrDefault(product.Id, 0)</td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
@@ -307,11 +330,12 @@
                 </div>
             </div>
         </div>
-        <div class="card mb-4 col-md-5">
+
+        <div class="card mb-4 col-md-6">
             <header class="card-header">
                 <div class="row">
-                    <div class="col-md-3 me-auto mb-md-0 mb-3">
-                        <h5 class="card-title fw-bold"></h5>
+                    <div class="col-md-6 me-auto mb-md-0 mb-3">
+                        <h5 class="card-title fw-bold">Top 5 Categoties </h5>
                     </div>
                     <div class="col-md-2 col-6">
                         <a asp-action="Index" asp-controller="Category" class="btn btn-primary btn-xs">View</a>
@@ -322,18 +346,18 @@
                 <div class="table-responsive">
                     <div class="table-responsive">
                         <table class="table align-middle table-nowrap mb-0">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
-                                    <th class="align-middle" scope="col">Category Names</th>
+                                    <th> Name</th>
+                                    <th>Quantity Sold</th>
                                 </tr>
                             </thead>
                             <tbody>
-
-                                @foreach (var order in Model.categors)
+                                @foreach (var product in Model.TopSellingCategories)
                                 {
                                     <tr>
-
-                                        <td>@order.Name</td>
+                                        <td>@product.Name</td>
+                                        <td>@Model.CategorySales.GetValueOrDefault(product.Id, 0)</td>
                                     </tr>
                                 }
                             </tbody>
@@ -354,38 +378,99 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        var selectedFilter; // Declare selectedFilter variable in outer scope
+        var myChart; // Variable to store chart instance
 
-        $.ajax({
-            type: "POST",
-            url: "/Admin/DashBoard/Index",
-            data: {},
-            contentType: "application/json;charset=utf-8",
-            dataType: "json",
-            success: OnSuccessResult,
-            error: OnError
-        });
+        function loadData(filter) {
+            selectedFilter = filter; // Update selectedFilter value
+            $.ajax({
+                type: "POST",
+                url: "/Admin/DashBoard/Index",
+                data: { filter: filter },
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: OnSuccessResult,
+                error: OnError
+            });
+        }
+
+        // Function to handle success response
         function OnSuccessResult(data) {
-            var _data = data;
             var chartLabels = data.chartLabels;
             var chartData = data.chartData;
 
-            var barColor = ["orange", "purple", "red"];
+            var barColor = ["orange", "orange", "purple", "red"];
             console.log("Server Response:", data);
             console.log("Chart Labels:", chartLabels);
             console.log("Chart Data:", chartData);
-            new Chart("myChart", {
+
+            // Filter chart data based on selected filter
+            var filteredLabels = [];
+            var filteredData = [];
+            if (selectedFilter === "daily") {
+                var todayIndex = chartLabels.indexOf("Today");
+                if (todayIndex !== -1) {
+                    filteredLabels.push(chartLabels[todayIndex]);
+                    filteredData.push(chartData[todayIndex]);
+                }
+            }
+            else if (selectedFilter === "weekly") {
+                var thisWeekIndex = chartLabels.indexOf("This Week");
+                if (thisWeekIndex !== -1) {
+                    filteredLabels.push(chartLabels[thisWeekIndex]);
+                    filteredData.push(chartData[thisWeekIndex]);
+                }
+            }
+            else if (selectedFilter === "monthly") {
+                var thisMonthIndex = chartLabels.indexOf("This Month");
+                if (thisMonthIndex !== -1) {
+                    filteredLabels.push(chartLabels[thisMonthIndex]);
+                    filteredData.push(chartData[thisMonthIndex]);
+                }
+            }
+            else if (selectedFilter === "yearly") {
+                var thisYearIndex = chartLabels.indexOf("This Year");
+                if (thisYearIndex !== -1) {
+                    filteredLabels.push(chartLabels[thisYearIndex]);
+                    filteredData.push(chartData[thisYearIndex]);
+                }
+            }
+           
+
+            // Destroy previous chart if it exists
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            // Render chart with filtered data
+            myChart = new Chart("myChart", {
                 type: "bar",
                 data: {
-                    labels: chartLabels,
+                    labels: filteredLabels,
                     datasets: [{
                         backgroundColor: barColor,
-                        data: chartData
+                        data: filteredData
                     }]
                 }
             });
         }
-        function OnError(err) {
 
+        // Function to handle errors
+        function OnError(err) {
+            // Handle errors if needed
         }
+
+        // Load data for all filters initially
+        loadData("daily");
+        loadData("weekly");
+        loadData("monthly");
+        loadData("yearly");
+
+        $("#filterSelect").change(function () {
+            selectedFilter = $(this).val(); // Update selectedFilter value
+            console.log("Selected Filter:", selectedFilter); // Log selected filter value
+            loadData(selectedFilter);
+        });
     });
+
 </script>

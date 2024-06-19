@@ -29,11 +29,11 @@
                     <div class="col-xl-9">
                         <p style="color: #7e8d9f; font-size: 20px;">Invoice >> <strong>Sales Report: Last Weeks</strong></p>
                     </div>
-                    <div class="col-xl-3 float-end">
-                        <button type="button" class="btn btn-outline-secondary btn_print m-3" onclick="exportToPDF()" value="Export to PDF">
+                    <div class="col-xl-3 text-end">
+                        <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="exportToPDF()" value="Export to PDF">
                             <i class="fas fa-file-pdf"></i> Download as Pdf
                         </button>
-                        <button type="button" class="btn btn-secondary btn_print m-3" onclick="export_data()" value="Export to excel">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="export_data()" value="Export to excel">
                             <i class="fas fa-file-excel"></i> Download as Excel
                         </button>
                     </div>
@@ -49,7 +49,7 @@
                             </select>
                         </div>
                         <div class="col-auto">
-                            <button id="applyFilter" class="btn btn-primary">Apply</button>
+                            <button id="applyFilter" class="btn btn-primary btn-sm">Apply</button>
                         </div>
                     </div>
                     <hr>
@@ -57,8 +57,7 @@
                 <div class="container" id="container_data">
                     <div class="col-md-12">
                         <div class="text-center">
-                            <img src="~/Images/MomsNest.png" class="h-100" />
-                            <p class="pt-0">MomsNest.com</p>
+                            <img width="90px" src="~/images/other/logo1.png">
                         </div>
                     </div>
                     <div class="row my-2 mx-1 justify-content-center">
@@ -69,8 +68,8 @@
                                     <th scope="col">Order Number</th>
                                     <th scope="col">Customer</th>
                                     <th scope="col">Order Total</th>
-                                    <th scope="col">Amount Paid</th>
-                                    <th scope="col">Status</th>
+                                    <th scope="col">Payment Status</th>
+                                    <th scope="col">Order Status</th>
                                     <th scope="col">Address</th>
                                 </tr>
                             </thead>
@@ -110,6 +109,7 @@
         </div>
     </div>
 </section>
+
 
 @section Scripts {
     <script>
@@ -167,4 +167,3 @@
             XLSX.writeFile(fp, 'test.xlsx');
         }
     </script>
-}
