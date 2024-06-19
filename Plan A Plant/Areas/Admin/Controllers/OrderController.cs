@@ -222,7 +222,7 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
         {
             try
             {
-                var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId, includeProperties: "ApplicationUser");
+                var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id, includeProperties: "ApplicationUser");
                 if (orderHeader != null)
                 {
                     orderHeader.CancellationStatus = SD.StatusApproved;
