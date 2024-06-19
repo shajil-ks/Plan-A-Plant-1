@@ -35,54 +35,114 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
 
         public IActionResult Details(int orderId)
         {
-            OrderVM = new OrderVM
+            try
             {
-                OrderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId, includeProperties: "ApplicationUser"),
-                OrderDetail = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderId, includeProperties: "Product")
-            };
+                OrderVM = new OrderVM
+                {
+                    OrderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId, includeProperties: "ApplicationUser"),
+                    OrderDetail = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderId, includeProperties: "Product")
+                };
 
-            return View(OrderVM);
+                if (OrderVM.OrderHeader == null)
+                {
+                    TempData["error"] = "Order not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(OrderVM);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while retrieving the order details. Please try again.";
+                
+                return RedirectToAction(nameof(Index));
+            }
         }
+
 
 
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin)]
         public IActionResult StartProcessing()
         {
-            _unitOfWork.OrderHeader.UpdateStatus(OrderVM.OrderHeader.Id, SD.StatusInProcess);
-            _unitOfWork.Save();
-            TempData["success"] = "Order details updated successfully.";
+            try
+            {
+                var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id);
+                if (orderHeader == null)
+                {
+                    TempData["error"] = "Order not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                _unitOfWork.OrderHeader.UpdateStatus(OrderVM.OrderHeader.Id, SD.StatusInProcess);
+                _unitOfWork.Save();
+
+                TempData["success"] = "Order details updated successfully.";
+            }
+            catch (Exception ex)
+            {                
+                TempData["error"] = "An error occurred while updating the order status. Please try again.";
+               
+            }
+
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
         }
+
 
 
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin)]
         public IActionResult ShipOrder()
         {
-            var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id);
-            orderHeader.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
-            orderHeader.Carrier = OrderVM.OrderHeader.Carrier;
-            orderHeader.OrderStatus = SD.StatusShipped;
-            orderHeader.ShippingDate = DateTime.Now;
+            try
+            {
+                var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id);
+                if (orderHeader == null)
+                {
+                    TempData["error"] = "Order not found.";
+                    return RedirectToAction(nameof(Index));
+                }
 
-            _unitOfWork.OrderHeader.Update(orderHeader);
-            _unitOfWork.Save();
+                orderHeader.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
+                orderHeader.Carrier = OrderVM.OrderHeader.Carrier;
+                orderHeader.OrderStatus = SD.StatusShipped;
+                orderHeader.ShippingDate = DateTime.Now;
 
-            TempData["success"] = "Order shipped successfully.";
+                _unitOfWork.OrderHeader.Update(orderHeader);
+                _unitOfWork.Save();
+
+                TempData["success"] = "Order shipped successfully.";
+            }
+            catch (Exception ex)
+            {              
+                TempData["error"] = "An error occurred while shipping the order. Please try again.";
+                
+            }
+
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
         }
+
 
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin)]
         public IActionResult Delivered()
         {
-            _unitOfWork.OrderHeader.UpdateStatus(OrderVM.OrderHeader.Id, SD.StatusDelivered);
-            _unitOfWork.Save();
+            try
+            {
+                _unitOfWork.OrderHeader.UpdateStatus(OrderVM.OrderHeader.Id, SD.StatusDelivered);
+                _unitOfWork.Save();
 
-            TempData["success"] = "Order Deliverd successfully.";
+                TempData["success"] = "Order Delivered successfully.";
+            }
+            catch (Exception ex)
+            {              
+                TempData["error"] = "An error occurred while marking the order as delivered. Please try again.";
+                
+            }
+
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
         }
+
 
 
 
@@ -160,54 +220,63 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
         [Authorize(Roles = SD.Role_Admin)]
         public IActionResult ApproveCancellation(int orderId)
         {
-            var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id,includeProperties:"ApplicationUser");
-            if (orderHeader != null)
+            try
             {
-                orderHeader.CancellationStatus = SD.StatusApproved;
-                _unitOfWork.OrderHeader.Update(orderHeader);
-
-                if (orderHeader.PaymentMethod == SD.PaymentMethodCOD)
+                var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId, includeProperties: "ApplicationUser");
+                if (orderHeader != null)
                 {
-                    _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
-                }
-                else if (orderHeader.PaymentMethod == SD.PaymentMethodWallet || orderHeader.PaymentMethod == SD.PaymentMethodOnline)
-                {
-                    _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
+                    orderHeader.CancellationStatus = SD.StatusApproved;
+                    _unitOfWork.OrderHeader.Update(orderHeader);
 
-                    // Credit the total amount to the user's wallet for online and wallet payment methods
-                    var user = orderHeader.ApplicationUser;
-                    if (user != null)
+                    if (orderHeader.PaymentMethod == SD.PaymentMethodCOD)
                     {
-                        user.Wallet +=(int) orderHeader.OrderTotal;
-                        _unitOfWork.ApplicationUser.Update(user);
+                        _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
                     }
-                }
-
-                _unitOfWork.Save();
-
-                // Increment stock quantity for each product in the order
-                var orderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderHeader.Id, includeProperties: "Product");
-                foreach (var orderDetail in orderDetails)
-                {
-                    var product = orderDetail.Product;
-                    if (product != null)
+                    else if (orderHeader.PaymentMethod == SD.PaymentMethodWallet || orderHeader.PaymentMethod == SD.PaymentMethodOnline)
                     {
-                        product.Qty += orderDetail.Count;
-                        _unitOfWork.Product.Update(product);
+                        _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
+
+                        // Credit the total amount to the user's wallet for online and wallet payment methods
+                        var user = orderHeader.ApplicationUser;
+                        if (user != null)
+                        {
+                            user.Wallet += (int)orderHeader.OrderTotal;
+                            _unitOfWork.ApplicationUser.Update(user);
+                        }
                     }
+
+                    _unitOfWork.Save();
+
+                    // Increment stock quantity for each product in the order
+                    var orderDetails = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderHeader.Id, includeProperties: "Product");
+                    foreach (var orderDetail in orderDetails)
+                    {
+                        var product = orderDetail.Product;
+                        if (product != null)
+                        {
+                            product.Qty += orderDetail.Count;
+                            _unitOfWork.Product.Update(product);
+                        }
+                    }
+
+                    _unitOfWork.Save();
+
+                    TempData["success"] = "Cancellation request approved/Refunded successfully.";
                 }
-
-                _unitOfWork.Save();
-
-                TempData["success"] = "Cancellation request approved/Refunded successfully.";
+                else
+                {
+                    TempData["error"] = "Order not found.";
+                }
             }
-            else
-            {
-                TempData["error"] = "Order not found.";
+            catch (Exception ex)
+            {                
+                TempData["error"] = "An error occurred while processing cancellation approval/refund. Please try again.";
+                
             }
 
             return RedirectToAction(nameof(Index));
         }
+
 
 
         [HttpPost]
@@ -299,35 +368,30 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
 
         public IActionResult Invoice(int orderId)
         {
-            OrderVM = new()
+            try
             {
-                OrderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId, includeProperties: "ApplicationUser"),
-                OrderDetail = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderId, includeProperties: "Product")
-            };
+                OrderVM = new OrderVM
+                {
+                    OrderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderId, includeProperties: "ApplicationUser"),
+                    OrderDetail = _unitOfWork.OrderDetail.GetAll(u => u.OrderHeaderId == orderId, includeProperties: "Product")
+                };
 
-            return View(OrderVM);
+                if (OrderVM.OrderHeader == null)
+                {
+                    TempData["error"] = "Order not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(OrderVM);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while generating the invoice. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
 
-
-
-
-
-        //[Authorize(Roles = SD.Role_Admin)]
-        //public IActionResult RejectCancellation(int orderId)
-        //{
-        //    var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id);
-        //    if (orderHeader != null)
-        //    {
-        //        orderHeader.CancellationStatus = SD.StatusRefunded;
-
-        //        _unitOfWork.OrderHeader.Update(orderHeader);
-        //        _unitOfWork.Save();
-
-        //        TempData["success"] = "Cancellation request rejected successfully.";
-        //    }
-        //    return RedirectToAction(nameof(Index));
-        //}
 
 
         #region API CALLS

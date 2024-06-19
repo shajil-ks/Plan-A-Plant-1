@@ -25,9 +25,9 @@ namespace Plan_A_Plant.Areas.User.Controllers
         public static bool WalletChecked { get; set; }
         public static bool CouponChecked { get; set; }
         public static double CouponDiscountAmount { get; set; }
-          
 
-       
+
+
         public CartController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -35,26 +35,35 @@ namespace Plan_A_Plant.Areas.User.Controllers
 
         public IActionResult Index()
         {
-            var clamisIdentity = (ClaimsIdentity)User.Identity;
-            var userId = clamisIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            ShoppingCartVM = new()
+            try
             {
-                ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId,
-                includeProperties: "Product"),
-                OrderHeader = new()
-            };
+                var clamisIdentity = (ClaimsIdentity)User.Identity;
+                var userId = clamisIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            IEnumerable<ProductImage> productImages = _unitOfWork.ProductImage.GetAll();
-            foreach (var cart in ShoppingCartVM.ShoppingCartList)
-            {
-                cart.Product.ProductImages = productImages.Where(u => u.ProductId == cart.ProductId).ToList();
-                cart.Price = GetPrice(cart);
-                ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+                ShoppingCartVM = new()
+                {
+                    ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId,
+                    includeProperties: "Product"),
+                    OrderHeader = new()
+                };
+
+                IEnumerable<ProductImage> productImages = _unitOfWork.ProductImage.GetAll();
+                foreach (var cart in ShoppingCartVM.ShoppingCartList)
+                {
+                    cart.Product.ProductImages = productImages.Where(u => u.ProductId == cart.ProductId).ToList();
+                    cart.Price = GetPrice(cart);
+                    ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+                }
+
+                return View(ShoppingCartVM);
             }
-
-            return View(ShoppingCartVM);
+            catch (Exception ex)
+            {
+               
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
+
 
 
 
@@ -63,7 +72,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            
+
 
 
             ShoppingCartVM = new()
@@ -122,13 +131,13 @@ namespace Plan_A_Plant.Areas.User.Controllers
             }
 
 
-            
-           
+
+
             return View(ShoppingCartVM);
 
         }
 
-       
+
 
 
 
@@ -478,26 +487,32 @@ namespace Plan_A_Plant.Areas.User.Controllers
 
         private decimal CouponCheckOut(string couponCode, int orderTotal)
         {
-            var couponobj = _unitOfWork.Coupon.Get(u => u.Code == couponCode);
-            decimal newTotal = (decimal)orderTotal;
-            if (couponobj != null)
+            try
             {
-                if (couponobj.MinimumAmount < orderTotal)
+                var couponobj = _unitOfWork.Coupon.Get(u => u.Code == couponCode);
+                decimal newTotal = (decimal)orderTotal;
+                if (couponobj != null)
                 {
-                    if (couponobj.DiscountAmount != null && couponobj.DiscountAmount > 0)
+                    if (couponobj.MinimumAmount < orderTotal)
                     {
-                        newTotal = (decimal)(orderTotal);
+                        if (couponobj.DiscountAmount != null && couponobj.DiscountAmount > 0)
+                        {
+                            newTotal = (decimal)(orderTotal - couponobj.DiscountAmount);
+                        }
+                        else if (couponobj.DiscountPercentage != null && couponobj.DiscountPercentage > 0)
+                        {
+                            newTotal = (decimal)(orderTotal - (orderTotal * couponobj.DiscountPercentage / 100));
+                        }
                     }
-                    else if (couponobj.DiscountPercentage != null && couponobj.DiscountPercentage > 0)
-                    {
-                        newTotal = (decimal)(orderTotal);
-                    }
-
-
                 }
+                return newTotal;
             }
-            return newTotal;
+            catch (Exception ex)
+            {
+                return orderTotal;
+            }
         }
+
 
 
         public IActionResult CheckWallet(int? totalAmount, string? userId)
@@ -505,7 +520,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
             var userobj = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
 
             string message = "";
-           
+
 
             if (userobj.Wallet > totalAmount)
             {
@@ -533,7 +548,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
                 {
                     success = false,
                     newWalletAmount = userobj.Wallet,
-                  
+
                     message = "Insufficient amount in your wallet"
 
                 };
@@ -545,60 +560,114 @@ namespace Plan_A_Plant.Areas.User.Controllers
 
         public IActionResult IsNotCheckWallet(int? totalAmount, string? userId)
         {
-            var userobj = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
-            WalletChecked = false;
-            string message = "";
-            var response = new
+            try
             {
-                success = true,
-                message = message,
+                var userobj = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+                WalletChecked = false;
+                string message = "";
 
-            };
+                var response = new
+                {
+                    success = true,
+                    message = message,
+                };
 
-            return Json(response);
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new
+                {
+                    success = false,
+                    message = "An error occurred while processing your request."
+                };
 
-
-
+                return Json(errorResponse);
+            }
         }
+
 
 
 
 
         public IActionResult Plus(int cartId)
         {
-            var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId);
-            cartFromDb.Count += 1;
-            _unitOfWork.ShoppingCart.Update(cartFromDb);
-            _unitOfWork.Save();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId);
+                if (cartFromDb == null)
+                {
+                    
+                    return NotFound();
+                }
 
+                cartFromDb.Count += 1;
+                _unitOfWork.ShoppingCart.Update(cartFromDb);
+                _unitOfWork.Save();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
+
 
         public IActionResult Minus(int cartId)
         {
-            var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId);
-            if (cartFromDb.Count <= 1)
+            try
             {
-                //remove from cart
-                _unitOfWork.ShoppingCart.Remove(cartFromDb);
-            }
-            else
-            {
-                cartFromDb.Count -= 1;
-                _unitOfWork.ShoppingCart.Update(cartFromDb);
-            }
+                var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId);
+                if (cartFromDb == null)
+                {
+                    // Handle the case where the cart item is not found
+                    return NotFound();
+                }
 
-            _unitOfWork.Save();
-            return RedirectToAction(nameof(Index));
+                if (cartFromDb.Count <= 1)
+                {
+                    // Remove from cart
+                    _unitOfWork.ShoppingCart.Remove(cartFromDb);
+                }
+                else
+                {
+                    cartFromDb.Count -= 1;
+                    _unitOfWork.ShoppingCart.Update(cartFromDb);
+                }
+
+                _unitOfWork.Save();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                 return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
+
 
         public IActionResult Remove(int cartId)
         {
-            var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId);
-            _unitOfWork.ShoppingCart.Remove(cartFromDb);
-            _unitOfWork.Save();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId);
+                if (cartFromDb == null)
+                {
+                    
+                    return NotFound();
+                }
+
+                _unitOfWork.ShoppingCart.Remove(cartFromDb);
+                _unitOfWork.Save();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+               
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
+
 
         private double GetPrice(ShoppingCart shoppingCart)
         {

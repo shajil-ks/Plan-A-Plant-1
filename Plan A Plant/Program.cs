@@ -30,6 +30,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = $"/Identity/Account/Logout";
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 
+    options.Cookie.Name = "AspNetCore.Identity.Application"; 
+    options.ExpireTimeSpan= TimeSpan.FromMinutes(1);
+    options.SlidingExpiration = true;
 });
 
 builder.Services.AddAuthentication().AddFacebook(option =>

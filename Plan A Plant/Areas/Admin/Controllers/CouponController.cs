@@ -19,95 +19,154 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Coupon> CouponList = unitOfWork.Coupon.GetAll().ToList();
-            return View(CouponList);
+            try
+            {
+                List<Coupon> CouponList = unitOfWork.Coupon.GetAll().ToList();
+                return View(CouponList);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while fetching the coupon list. Please try again.";
+                 return View(new List<Coupon>());
+            }
         }
+
         public IActionResult Create()
         {
             return View();
         }
+
         [HttpPost]
         public IActionResult Create(Coupon coupons)
         {
-
-            if (ModelState.IsValid)
+            try
             {
-                var existingcoupon = unitOfWork.Coupon.Get(c => c.Code == coupons.Code);
-
-
-                if (existingcoupon != null)
+                if (ModelState.IsValid)
                 {
-                    ModelState.AddModelError("Code", "Coupon code already exists.");
-                    return View(coupons); // Return the view with the error message
+                    var existingcoupon = unitOfWork.Coupon.Get(c => c.Code == coupons.Code);
+
+                    if (existingcoupon != null)
+                    {
+                        ModelState.AddModelError("Code", "Coupon code already exists.");
+                        return View(coupons); 
+                    }
+
+                    unitOfWork.Coupon.Add(coupons);
+                    unitOfWork.Save();
+                    TempData["Success"] = "Coupon Created successfully";
+                    return RedirectToAction("Index");
                 }
-                unitOfWork.Coupon.Add(coupons);
-                unitOfWork.Save();
-                TempData["Success"] = "Coupon Created successfully";
-                return RedirectToAction("Index");
             }
-            return View();
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while creating the coupon. Please try again.";
+                
+            }
+
+            return View(coupons); 
         }
-        
+
+
 
         public IActionResult Edit(int? id)
         {
-            if (id == null || id == 0)
+            try
             {
-                return NotFound();
-            }
+                if (id == null || id == 0)
+                {
+                    return NotFound();
+                }
 
-            Coupon coupon = unitOfWork.Coupon.Get(u => u.CouponId == id);
-            if (coupon == null)
-            {
-                return NotFound();
+                Coupon coupon = unitOfWork.Coupon.Get(u => u.CouponId == id);
+                if (coupon == null)
+                {
+                    return NotFound();
+                }
+
+                return View(coupon);
             }
-            return View(coupon);
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while fetching the coupon details. Please try again.";
+                return RedirectToAction("Index"); 
+            }
         }
+
 
         [HttpPost]
         public IActionResult Edit(Coupon coupon)
         {
-            if (ModelState.IsValid)
+            try
             {
-                unitOfWork.Coupon.Update(coupon);
-                unitOfWork.Save();
-                TempData["Success"] = "Coupon updated successfully";
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    unitOfWork.Coupon.Update(coupon);
+                    unitOfWork.Save();
+                    TempData["Success"] = "Coupon updated successfully";
+                    return RedirectToAction("Index");
+                }
             }
-            return View(coupon);
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while updating the coupon. Please try again.";
+                
+            }
+
+            return View(coupon); 
         }
 
 
-       
+
+
         public IActionResult Delete(int? id)
         {
-            if (id == null || id == 0)
+            try
             {
-                return NotFound();
-            }
-            Coupon CouponList = unitOfWork.Coupon.Get(u => u.CouponId == id);
-            if (CouponList == null)
-            {
-                return NotFound();
-            }
-            return View(CouponList);
+                if (id == null || id == 0)
+                {
+                    return NotFound();
+                }
 
+                Coupon coupon = unitOfWork.Coupon.Get(u => u.CouponId == id);
+                if (coupon == null)
+                {
+                    return NotFound();
+                }
+
+                return View(coupon);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while fetching the coupon details. Please try again.";
+                return RedirectToAction("Index"); 
+            }
         }
-        [HttpPost, ActionName("Delete")]
 
+
+
+        [HttpPost, ActionName("Delete")]
         public IActionResult DeletePost(int? id)
         {
-            Coupon CouponList = unitOfWork.Coupon.Get(u => u.CouponId == id);
-            if (CouponList == null)
+            try
             {
-                return NotFound();
-            }
+                Coupon coupon = unitOfWork.Coupon.Get(u => u.CouponId == id);
+                if (coupon == null)
+                {
+                    return NotFound();
+                }
 
-            unitOfWork.Coupon.Remove(CouponList);
-            unitOfWork.Save();
-            TempData["Success"] = "Coupon Deleted successfully";
-            return RedirectToAction("Index");
+                unitOfWork.Coupon.Remove(coupon);
+                unitOfWork.Save();
+                TempData["Success"] = "Coupon Deleted successfully";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {               
+                TempData["error"] = "An error occurred while deleting the coupon. Please try again.";
+                return RedirectToAction("Index"); 
+            }
         }
+
 
     }
 }

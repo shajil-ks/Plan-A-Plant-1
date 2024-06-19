@@ -14,88 +14,116 @@ using System.Security.Claims;
 namespace Plan_A_Plant.Areas.User.Controllers
 {
     [Area("User")]
-   
+
     public class HomeController : Controller
     {
-      
+
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitOfWork _unitOfWork;
         private static int walletAmount;
 
-        public HomeController(ILogger<HomeController> logger,IUnitOfWork unitOfWork)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
-            _unitOfWork = unitOfWork;   
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-
-            if (HttpContext.User.Identity.IsAuthenticated)
+            try
             {
-
-                if (User.IsInRole("Admin"))
+                if (HttpContext.User.Identity.IsAuthenticated)
                 {
-                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                    if (User.IsInRole("Admin"))
+                    {
+                        return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                    }
                 }
 
+                IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
+                return View(productList);
             }
-            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
-
-            return View(productList);
-
-
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
-        
+
+
         public IActionResult Search(string searchString, int? categoryId)
         {
-            // Get all products
-            IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
-
-            // Filter by category if provided
-            if (categoryId != null)
+            try
             {
-                productList = productList.Where(p => p.CategoryId == categoryId);
-            }
+                // Get all products
+                IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
 
-            // Filter by search string if provided
-            if (!string.IsNullOrEmpty(searchString))
+                // Filter by category if provided
+                if (categoryId != null)
+                {
+                    productList = productList.Where(p => p.CategoryId == categoryId);
+                }
+
+                // Filter by search string if provided
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    searchString = searchString.Trim().ToLower(); // Convert search string to lowercase for case-insensitive comparison
+
+                    // Filter by product name or category name containing the search string
+                    productList = productList.Where(p =>
+                        p.Name.ToLower().Contains(searchString) ||
+                        p.Category.Name.ToLower().Contains(searchString));
+                }
+
+                var categories = _unitOfWork.Category.GetAll().ToList();
+                ViewBag.Categories = categories; // Pass categories to the layout
+
+                return View("Index", productList.ToList());
+            }
+            catch (Exception ex)
             {
-                searchString = searchString.Trim().ToLower(); // Convert search string to lowercase for case-insensitive comparison
-
-                // Filter by product name or category name containing the search string
-                productList = productList.Where(p =>
-                    p.Name.ToLower().Contains(searchString) ||
-                    p.Category.Name.ToLower().Contains(searchString));
+                return StatusCode(500, "An error occurred while processing your request.");
             }
-
-            var categories = _unitOfWork.Category.GetAll().ToList();
-            ViewBag.Categories = categories; // Pass categories to the layout
-
-            return View("Index", productList.ToList());
         }
 
 
 
-        public IActionResult ViewProduct(int Id )
+
+        public IActionResult ViewProduct(int Id)
         {
-            ShoppingCart cart = new()
+            try
             {
-                  Product = _unitOfWork.Product.Get(u => u.Id == Id, includeProperties: "Category,ProductImages"),
-                  Count=1,
-                  ProductId=Id
-            };
-            
-            return View(cart);
+                var product = _unitOfWork.Product.Get(u => u.Id == Id, includeProperties: "Category,ProductImages");
+
+                if (product == null)
+                {
+                    
+                    return NotFound();
+                }
+
+                ShoppingCart cart = new()
+                {
+                    Product = product,
+                    Count = 1,
+                    ProductId = Id
+                };
+
+                return View(cart);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
+
 
 
         [HttpPost]
         [Authorize]
         public IActionResult ViewProduct(ShoppingCart shoppingCart)
         {
-            
+
             //var clamisIdentity=(ClaimsIdentity)User.Identity;
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             shoppingCart.ApplicationUserId = userId;
@@ -130,85 +158,151 @@ namespace Plan_A_Plant.Areas.User.Controllers
 
 
 
-            if (cartFromDb != null) 
+            if (cartFromDb != null)
             {  //shopping carexisist
                 cartFromDb.Count += shoppingCart.Count;
-                _unitOfWork.ShoppingCart. Update(cartFromDb);
-                
+                _unitOfWork.ShoppingCart.Update(cartFromDb);
+
 
             }
             else
             {  //create newrecord
                 _unitOfWork.ShoppingCart.Add(shoppingCart);
-                
+
             }
-            
+
             _unitOfWork.Save();
             TempData["Success"] = "Cart Updated successfully";
-            return RedirectToAction (nameof(Index));
-            
+            return RedirectToAction(nameof(Index));
+
         }
 
         [Authorize]
         public IActionResult UserProfile()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var UserId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            ApplicationUser Userobj = _unitOfWork.ApplicationUser.Get(u => u.Id == UserId);
-            if (Userobj != null)
+            try
             {
-                return View(Userobj);
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userIdClaim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null)
+                {
+                   
+                    return Unauthorized();
+                }
+
+                var userId = userIdClaim.Value;
+
+                ApplicationUser userObj = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+
+                if (userObj != null)
+                {
+                    return View(userObj);
+                }
+
+               
+                return NotFound();
             }
-            return View();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
+
+
         public IActionResult EditUserProfile()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var UserId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            ApplicationUser Userobj = _unitOfWork.ApplicationUser.Get(u => u.Id == UserId);
-            if (Userobj != null)
+            try
             {
-                return View(Userobj);
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userIdClaim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null)
+                {
+                    
+                    return Unauthorized();
+                }
+
+                var userId = userIdClaim.Value;
+
+                ApplicationUser userObj = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+
+                if (userObj != null)
+                {
+                    return View(userObj);
+                }
+
+               
+                return NotFound();
             }
-            return View();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
+
 
         [HttpPost]
         public IActionResult EditUserProfile(ApplicationUser applicationUser)
         {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    _unitOfWork.ApplicationUser.Update(applicationUser);
+                    _unitOfWork.Save();
+                    return RedirectToAction(nameof(UserProfile));
+                }
 
-            _unitOfWork.ApplicationUser.Update(applicationUser);
-            _unitOfWork.Save();
-            return RedirectToAction(nameof(UserProfile));
-        }  
+                
+                return View(applicationUser);
+            }
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
 
-            
+
+
 
 
 
         public IActionResult Wallet()
         {
-            var claimIdentity = (ClaimsIdentity)User.Identity;
-            var UserId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            try
+            {
+                var claimIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            var userobj = _unitOfWork.ApplicationUser.Get(u => u.Id == UserId);
-            if (userobj.Wallet == null)
-            {
-                userobj.Wallet = 0;
+                var userObj = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
+
+                if (userObj == null)
+                {
+                   
+                    return NotFound();
+                }
+
+                if (userObj.Wallet == null || userObj.Wallet <= 0)
+                {
+                    userObj.Wallet = 0;
+                }
+
+                return View(userObj);
             }
-            if (userobj.Wallet <= 0)
+            catch (Exception ex)
             {
-                userobj.Wallet = 0;
+                
+                return StatusCode(500, "An error occurred while processing your request.");
             }
-            return View(userobj);
         }
+
 
 
         [HttpPost]
         public IActionResult Wallet(ApplicationUser applicationUser)
-        {   
+        {
             var claimIdentity = (ClaimsIdentity)User.Identity;
             var UserId = claimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
             SetWalletValue((int)applicationUser.Wallet);
@@ -267,7 +361,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
                             _unitOfWork.ApplicationUser.Update(UserObj);
                             _unitOfWork.Save();
 
-                            
+
                             Response.Headers.Add("Location", session.Url);
                             return new StatusCodeResult(303);
                         }
@@ -279,7 +373,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
                 }
             }
 
-           
+
             return View(applicationUser);
         }
 
@@ -341,7 +435,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
 
 
 
-        public IActionResult Test()  
+        public IActionResult Test()
         {
             return View();
         }

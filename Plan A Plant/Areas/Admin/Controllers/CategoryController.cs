@@ -18,10 +18,22 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            //fetch data from db
-            List<Category> objCategoryList = _unitOfWork.Category.GetAll().ToList();
+            List<Category> objCategoryList;
+
+            try
+            {
+                // Fetch data from database
+                objCategoryList = _unitOfWork.Category.GetAll().ToList();
+            }
+            catch (Exception ex)
+            { 
+                TempData["ErrorMessage"] = "There was a problem retrieving categories. Please try again later.";
+                objCategoryList = new List<Category>(); 
+            }
+
             return View(objCategoryList);
         }
+
         public IActionResult Create()
         {
             return View();
@@ -30,76 +42,129 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Create(Category obj)
         {
-            obj.IsActive = true;
-            if (ModelState.IsValid)
+            try
             {
-                _unitOfWork.Category.Add(obj);
-                _unitOfWork.Save();
-                TempData["success"] = "Category Updated Successfully";
-                return RedirectToAction("Index");
+                obj.IsActive = true;
+                if (ModelState.IsValid)
+                {
+                    _unitOfWork.Category.Add(obj);
+                    _unitOfWork.Save();
+                    TempData["success"] = "Category Updated Successfully";
+                    return RedirectToAction("Index");
+                }
             }
-            return View();
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while updating the category. Please try again.";
+               
+            }
+
+            return View(obj);
         }
+
 
         public IActionResult Edit(int? Id)
         {
-            if (Id == null || Id == 0)
+            try
             {
-                return NotFound();
+                if (Id == null || Id == 0)
+                {
+                    return NotFound();
+                }
+
+                Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == Id);
+
+                if (categoryFromDb == null)
+                {
+                    return NotFound();
+                }
+
+                return View(categoryFromDb);
             }
-
-            Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == Id);
-
-            if (categoryFromDb == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                TempData["error"] = "An error occurred while fetching the category details. Please try again.";
+                return RedirectToAction("Index"); 
             }
-            return View(categoryFromDb);
         }
+
 
         [HttpPost]
         public IActionResult Edit(Category obj, int id, [Bind("Id,Name,DisplayOrder,Description,IsActive")] Category category)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _unitOfWork.Category.Update(obj);
-                _unitOfWork.Save();
-                TempData["success"] = "Category Edited Successfully";
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    _unitOfWork.Category.Update(obj);
+                    _unitOfWork.Save();
+                    TempData["success"] = "Category Edited Successfully";
+                    return RedirectToAction("Index");
+                }
             }
-            return View();
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while editing the category. Please try again.";
+                
+            }
+
+            return View(obj);
         }
+
 
 
         public IActionResult Delete(int? Id)
         {
-            if (Id == null || Id == 0)
+            try
             {
-                return NotFound();
+                if (Id == null || Id == 0)
+                {
+                    return NotFound();
+                }
+
+                Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == Id);
+
+                if (categoryFromDb == null)
+                {
+                    return NotFound();
+                }
+
+                return View(categoryFromDb);
             }
-
-            Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == Id);
-
-            if (categoryFromDb == null)
+            catch (Exception ex)
             {
-                return NotFound();
+
+                TempData["error"] = "An error occurred while fetching the category details for deletion. Please try again.";
+                
+                return RedirectToAction("Index");
             }
-            return View(categoryFromDb);
         }
 
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePost(int? Id)
         {
-            Category? obj = _unitOfWork.Category.Get(u => u.Id == Id);
-            if (obj == null)
+            try
             {
-                return NotFound();
+                Category? obj = _unitOfWork.Category.Get(u => u.Id == Id);
+                if (obj == null)
+                {
+                    return NotFound();
+                }
+
+                _unitOfWork.Category.Remove(obj);
+                _unitOfWork.Save();
+                TempData["success"] = "Category Deleted Successfully";
+                return RedirectToAction("Index");
             }
-            _unitOfWork.Category.Remove(obj);
-            _unitOfWork.Save();
-            TempData["success"] = "Category Deleted Successfully";
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while deleting the category. Please try again.";
+               
+
+                return RedirectToAction("Index"); 
+            }
         }
+
 
 
 

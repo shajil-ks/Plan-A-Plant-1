@@ -18,10 +18,19 @@ namespace Plan_A_Plant.Areas.User.Controllers
         [Authorize]
         public IActionResult Index()
         {
-
-            List<Coupon> coupon = _unitOfWork.Coupon.GetAll().ToList();
-            return View(coupon);
+            try
+            {
+                List<Coupon> coupons = _unitOfWork.Coupon.GetAll().ToList();
+                return View(coupons);
+            }
+            catch (Exception ex)
+            {
+               
+                TempData["error"] = "An error occurred while fetching the coupons.";
+                return RedirectToAction("Error", "Home");
+            }
         }
+
 
 
 

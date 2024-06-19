@@ -23,20 +23,38 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            List<Offer> objOfferList = _unitOfWork.Offer.GetAll(includeProperties: "Product,Category").ToList();
-            return View(objOfferList);
+            try
+            {
+                List<Offer> objOfferList = _unitOfWork.Offer.GetAll(includeProperties: "Product,Category").ToList();
+                return View(objOfferList);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while processing your request. Please try again.";
+                return View(new List<Offer>()); 
+            }
         }
+
 
         public IActionResult Create()
         {
-            OfferVM offerVM = new OfferVM
+            try
             {
-                Offer = new Offer(),
-                Categories = _unitOfWork.Category.GetAll().ToList(),
-                Products = _unitOfWork.Product.GetAll().ToList()
-            };
-            return View(offerVM);
+                OfferVM offerVM = new OfferVM
+                {
+                    Offer = new Offer(),
+                    Categories = _unitOfWork.Category.GetAll().ToList(),
+                    Products = _unitOfWork.Product.GetAll().ToList()
+                };
+                return View(offerVM);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while initializing the offer creation form. Please try again.";
+                return RedirectToAction("Index");
+            }
         }
+
 
         [HttpPost]
         public IActionResult Create(OfferVM offerVM)
@@ -95,82 +113,121 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
 
         public IActionResult Edit(int id)
         {
-            var offer = _unitOfWork.Offer.Get(o => o.OfferId == id, includeProperties: "Product,Category");
-            if (offer == null)
+            try
             {
-                return NotFound();
-            }
+                var offer = _unitOfWork.Offer.Get(o => o.OfferId == id, includeProperties: "Product,Category");
+                if (offer == null)
+                {
+                    return NotFound();
+                }
 
-            OfferVM offerVM = new OfferVM
-            {
-                Offer = offer,
-                Categories = _unitOfWork.Category.GetAll().ToList(),
-                Products = _unitOfWork.Product.GetAll().ToList(),
-                SelectedCategoryId = offer.CategoryId,
-                SelectedProductId = offer.ProductId
-            };
-            return View(offerVM);
+                OfferVM offerVM = new OfferVM
+                {
+                    Offer = offer,
+                    Categories = _unitOfWork.Category.GetAll().ToList(),
+                    Products = _unitOfWork.Product.GetAll().ToList(),
+                    SelectedCategoryId = offer.CategoryId,
+                    SelectedProductId = offer.ProductId
+                };
+                return View(offerVM);
+            }
+            catch (Exception ex)
+            {                
+                TempData["error"] = "An error occurred while fetching or initializing the offer for editing. Please try again.";
+                return RedirectToAction("Index"); 
+            }
         }
+
 
         [HttpPost]
         public IActionResult Edit(OfferVM offerVM)
         {
-            if (ModelState.IsValid)
+            try
             {
-                if (offerVM.Offer.Offertype == Offer.OfferType.Category)
+                if (ModelState.IsValid)
                 {
-                    offerVM.Offer.CategoryId = offerVM.SelectedCategoryId;
-                    offerVM.Offer.ProductId = null; // Ensure ProductId is null
-                }
-                else if (offerVM.Offer.Offertype == Offer.OfferType.Product)
-                {
-                    offerVM.Offer.ProductId = offerVM.SelectedProductId;
-                    offerVM.Offer.CategoryId = null; // Ensure CategoryId is null
+                    if (offerVM.Offer.Offertype == Offer.OfferType.Category)
+                    {
+                        offerVM.Offer.CategoryId = offerVM.SelectedCategoryId;
+                        offerVM.Offer.ProductId = null; // Ensure ProductId is null
+                    }
+                    else if (offerVM.Offer.Offertype == Offer.OfferType.Product)
+                    {
+                        offerVM.Offer.ProductId = offerVM.SelectedProductId;
+                        offerVM.Offer.CategoryId = null; // Ensure CategoryId is null
+                    }
+
+                    _unitOfWork.Offer.Update(offerVM.Offer);
+                    _unitOfWork.Save();
+
+                    // Update discounted prices
+                    UpdateDiscountedPrices();
+                    TempData["success"] = "Offer Updated successfully";
+                    return RedirectToAction(nameof(Index));
                 }
 
-                _unitOfWork.Offer.Update(offerVM.Offer);
-                _unitOfWork.Save();
-
-                // Update discounted prices
-                UpdateDiscountedPrices();
-                TempData["success"] = "Offer Updated succesfully";
-                return RedirectToAction(nameof(Index));
+                offerVM.Categories = _unitOfWork.Category.GetAll().ToList();
+                offerVM.Products = _unitOfWork.Product.GetAll().ToList();
+                return View(offerVM);
             }
-
-            offerVM.Categories = _unitOfWork.Category.GetAll().ToList();
-            offerVM.Products = _unitOfWork.Product.GetAll().ToList();
-            return View(offerVM);
+            catch (Exception ex)
+            {
+               TempData["error"] = "An error occurred while updating the offer. Please try again.";
+                // Reload Categories and Products to ensure the view can be rendered correctly
+                offerVM.Categories = _unitOfWork.Category.GetAll().ToList();
+                offerVM.Products = _unitOfWork.Product.GetAll().ToList();
+                return View(offerVM);
+            }
         }
+
 
         public IActionResult Delete(int id)
         {
-            var offer = _unitOfWork.Offer.Get(o => o.OfferId == id, includeProperties: "Product,Category");
-            if (offer == null)
+            try
             {
-                return NotFound();
-            }
+                var offer = _unitOfWork.Offer.Get(o => o.OfferId == id, includeProperties: "Product,Category");
+                if (offer == null)
+                {
+                    return NotFound();
+                }
 
-            return View(offer);
+                return View(offer);
+            }
+            catch (Exception ex)
+            {
+                TempData["error"] = "An error occurred while retrieving the offer for deletion. Please try again.";
+                return RedirectToAction(nameof(Index));
+            }
         }
+
 
         [HttpPost, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
-            var offer = _unitOfWork.Offer.Get(o => o.OfferId == id);
-            
-            if (offer == null)
+            try
             {
-                return NotFound();
+                var offer = _unitOfWork.Offer.Get(o => o.OfferId == id);
+
+                if (offer == null)
+                {
+                    return NotFound();
+                }
+
+                _unitOfWork.Offer.Remove(offer);
+                _unitOfWork.Save();
+
+                // Update discounted prices
+                UpdateDiscountedPrices();
+                TempData["success"] = "Offer Deleted successfully";
+            }
+            catch (Exception ex)
+            {              
+                TempData["error"] = "An error occurred while deleting the offer. Please try again.";
             }
 
-            _unitOfWork.Offer.Remove(offer);
-            _unitOfWork.Save();
-
-            // Update discounted prices
-            UpdateDiscountedPrices();
-            TempData["success"] = "Offer Deleted succesfully";
             return RedirectToAction(nameof(Index));
         }
+
 
         private void UpdateDiscountedPrices()
         {
