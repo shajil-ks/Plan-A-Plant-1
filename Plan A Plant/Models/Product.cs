@@ -20,12 +20,13 @@ namespace Plan_A_Plant.Models
         public double? DiscountedPrice { get; set; }
 
         [Required(ErrorMessage = "Quantity is required.")]
-        [Range(0, int.MaxValue, ErrorMessage = "Quantity can't be less than zero.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity can't be less than zero.")]
         public int Qty { get; set; }
-
+        [Required]
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         [ValidateNever]
+        [Required]
         public Category Category { get; set; }
         [ValidateNever]
         public List<ProductImage>ProductImages { get; set; }

@@ -65,14 +65,14 @@
                         <label asp-for="Input.MobileNumber" class="ms-2 text-muted">Mobile Number</label>
                         <span asp-validation-for="Input.MobileNumber" class="text-danger"></span>
                     </div>
-                    @if(User.IsInRole(SD.Role_Admin)){
+                   @*  @if(User.IsInRole(SD.Role_Admin)){
                     <div class="form-floating mb-3 col-md-6">
                         <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select">
                             <option disabled selected>--Select Role--</option>
                         </select>
 
                     </div>
-                    }
+                    } *@
                     <div class="class-12">
                     <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
                     </div>
@@ -81,7 +81,7 @@
             <div class="col-md-12">
                 <section>
                     <p class=" divider-text d-flex pt-3">or</p>
-                    <h3>Use another service to register</h3>
+                    <h4>Use another service to register</h4>
                  
                     @{
                         if ((Model.ExternalLogins?.Count ?? 0) == 0)

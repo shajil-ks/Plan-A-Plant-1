@@ -327,7 +327,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
                     {
                         try
                         {
-                            var domain = "https://localhost:7208/";
+                            var domain = Request.Scheme + "://" + Request.Host.Value + "/";
                             var options = new SessionCreateOptions
                             {
                                 SuccessUrl = domain + $"user/Home/WalletSuccess?id={UserObj.Id}",
