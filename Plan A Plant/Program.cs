@@ -31,7 +31,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 
     options.Cookie.Name = "AspNetCore.Identity.Application"; 
-    options.ExpireTimeSpan= TimeSpan.FromMinutes(1);
+    options.ExpireTimeSpan= TimeSpan.FromMinutes(5);
     options.SlidingExpiration = true;
 });
 
