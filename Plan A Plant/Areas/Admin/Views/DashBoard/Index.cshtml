@@ -166,6 +166,8 @@
                                 <th class="align-middle" scope="col">Date</th>
                                 <th class="align-middle" scope="col">Total</th>
                                 <th class="align-middle" scope="col">Payment Status</th>
+                                <th class="align-middle" scope="col">Payment Method</th>
+                                <th class="align-middle" scope="col">Order Status</th>
                                 <th class="align-middle" scope="col">Phone Number</th>
                                 <th class="align-middle" scope="col">View Details</th>
                             </tr>
@@ -186,6 +188,12 @@
 
                                     <td>
                                         <span class="badge badge-pill badge-soft-info">@order.PaymentStatus</span>
+                                    </td>
+                                    <td>
+                                        @order.PaymentMethod
+                                    </td>
+                                    <td>
+                                        @order.OrderStatus
                                     </td>
                                     
                                     <td>

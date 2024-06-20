@@ -150,7 +150,7 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult CancelOrder(int orderId, string reason)
         {
-            var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id);
+            var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id ,includeProperties: "ApplicationUser");
          
             if (orderHeader != null)
             {
@@ -184,6 +184,13 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
                     if (orderHeader.PaymentMethod == SD.PaymentMethodWallet || orderHeader.PaymentMethod == SD.PaymentMethodOnline)
                     {
                         _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
+                        var user = orderHeader.ApplicationUser;
+                        if (user != null)
+                        {
+                            user.Wallet += (int)orderHeader.OrderTotal;
+                            _unitOfWork.ApplicationUser.Update(user);
+                        }
+
                     }
                     _unitOfWork.Save();
 
@@ -202,6 +209,7 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
 
                     _unitOfWork.Save();
 
+                                       
 
                     TempData["Success"] = "Order Cancelled  successfully";
                     return RedirectToAction(nameof(Index));
