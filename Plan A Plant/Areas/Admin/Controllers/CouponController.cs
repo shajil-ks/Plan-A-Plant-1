@@ -27,7 +27,7 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 TempData["error"] = "An error occurred while fetching the coupon list. Please try again.";
-                 return View(new List<Coupon>());
+                return View(new List<Coupon>());
             }
         }
 
@@ -43,12 +43,17 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var existingcoupon = unitOfWork.Coupon.Get(c => c.Code == coupons.Code);
+                    if (coupons.Type == Coupon.DiscountType.DiscountAmount && coupons.DiscountAmount > (coupons.MinimumAmount * (double) 0.5m))
+                    {
+                        ModelState.AddModelError("DiscountAmount", "Discount amount cannot be more than 50% of the minimum amount.");
+                        return View(coupons);
+                    }
 
+                    var existingcoupon = unitOfWork.Coupon.Get(c => c.Code == coupons.Code);
                     if (existingcoupon != null)
                     {
                         ModelState.AddModelError("Code", "Coupon code already exists.");
-                        return View(coupons); 
+                        return View(coupons);
                     }
 
                     unitOfWork.Coupon.Add(coupons);
@@ -60,10 +65,9 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 TempData["error"] = "An error occurred while creating the coupon. Please try again.";
-                
             }
 
-            return View(coupons); 
+            return View(coupons);
         }
 
 
@@ -88,7 +92,7 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 TempData["error"] = "An error occurred while fetching the coupon details. Please try again.";
-                return RedirectToAction("Index"); 
+                return RedirectToAction("Index");
             }
         }
 
@@ -100,6 +104,12 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    if (coupon.Type == Coupon.DiscountType.DiscountAmount && coupon.DiscountAmount > (coupon.MinimumAmount *(double) 0.5m))
+                    {
+                        ModelState.AddModelError("DiscountAmount", "Discount amount cannot be more than 50% of the minimum amount.");
+                        return View(coupon);
+                    }
+
                     unitOfWork.Coupon.Update(coupon);
                     unitOfWork.Save();
                     TempData["Success"] = "Coupon updated successfully";
@@ -109,10 +119,9 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 TempData["error"] = "An error occurred while updating the coupon. Please try again.";
-                
             }
 
-            return View(coupon); 
+            return View(coupon);
         }
 
 
@@ -138,7 +147,7 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 TempData["error"] = "An error occurred while fetching the coupon details. Please try again.";
-                return RedirectToAction("Index"); 
+                return RedirectToAction("Index");
             }
         }
 
@@ -161,9 +170,9 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
-            {               
+            {
                 TempData["error"] = "An error occurred while deleting the coupon. Please try again.";
-                return RedirectToAction("Index"); 
+                return RedirectToAction("Index");
             }
         }
 
