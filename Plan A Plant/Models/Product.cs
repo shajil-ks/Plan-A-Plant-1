@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static Plan_A_Plant.Areas.Admin.Controllers.ProductController;
 
 namespace Plan_A_Plant.Models
 {
@@ -29,6 +31,7 @@ namespace Plan_A_Plant.Models
         [Required]
         public Category Category { get; set; }
         [ValidateNever]
+        [Required]
         public List<ProductImage>ProductImages { get; set; }
 
         public Product()

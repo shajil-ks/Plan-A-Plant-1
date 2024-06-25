@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Plan_A_Plant.Utility;
+using System.ComponentModel.DataAnnotations;
 
 namespace Plan_A_Plant.Areas.Admin.Controllers
 {
@@ -150,7 +151,7 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 TempData["error"] = "An error occurred while processing your request. Please try again.";
-                
+
                 productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
                 {
                     Text = u.Name,
@@ -160,6 +161,8 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
                 return View(productVM);
             }
         }
+
+
 
 
 

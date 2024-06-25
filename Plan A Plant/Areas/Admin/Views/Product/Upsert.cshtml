@@ -1,24 +1,20 @@
 ﻿@model ProductVM
 
 <div class="card shadow border-0 mt-4" style="max-width: 70%; margin: 0 auto;">
-    <div class="card-header bg-primary bg-gradient ml-0 py-4 ">
+    <div class="card-header bg-primary bg-gradient ml-0 py-4">
         <div class="row">
             <div class="col-12 text-center">
-                <h2 class="text-white mb-4  text-center">@(Model.Product.Id != 0 ? "Update" : "Create") Product</h2>
+                <h2 class="text-white mb-4 text-center">@(Model.Product.Id != 0 ? "Update" : "Create") Product</h2>
             </div>
         </div>
     </div>
     <div class="card-body p-4">
-
-     
         <form method="post" enctype="multipart/form-data">
             <input asp-for="Product.Id" hidden />
             <div class="row">
-                <div class="col-10">
-
+                <div class="col-md-8">
                     <div class="container border p-4 mt-4">
-                        
-                          <div class="row mb-3">
+                        <div class="row mb-3">
                             <div class="col-md-12">
                                 <label class="form-label">Name</label>
                                 <input asp-for="Product.Name" class="form-control" />
@@ -39,10 +35,10 @@
                             </div>
                             <div class="from-floating py-2 col-12">
                                 <label class="form-label">Product Images</label>
-                                @* <input asp-for="Product.ProductImages" class=" ms-2"/> *@
-                                <input type="file" name="files" class=" form-control" multiple />
+                                <input type="file" name="files" id="imageFilesInput" class="form-control" accept="image/*" multiple />
                                 <span class="text-muted">Max file size: 5MB</span>
-
+                                <div id="imagePreviewContainer" class="mt-2 d-none"></div>
+                                <span id="fileTypeError" class="text-danger d-none">Only image files are allowed.</span>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -59,7 +55,6 @@
                                 <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
                             </div>
                         </div>
-
                         <div class="row pt-2">
                             <div class="col-md-6">
                                 @if (Model.Product.Id != 0)
@@ -76,35 +71,98 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
-                <div class="col-2">
-                    @if (Model.Product.ProductImages != null)
-                    {
-                        foreach (var image in Model.Product.ProductImages)
-                        {
-                            <div class=" border p-1 m-2 text-center">
-                                <img src="@image.ImageUrl" width="100%"
-                                     style="border-radius:5px; border:1px solid #bbb9b9" />
-                                <a asp-action="DeleteImage" class="btn btn-sm btn-danger rounded-pill" asp-route-imageId="@image.Id">Delete</a>
-                            </div>
-                        }
-                    }
-
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            Product Images
+                        </div>
+                        <div class="card-body" id="imagePreviewCardBody">
+                            @if (Model.Product.ProductImages != null && Model.Product.ProductImages.Any())
+                            {
+                                foreach (var image in Model.Product.ProductImages)
+                                {
+                                    <div class="image-container" style="position: relative; display: inline-block;">
+                                        <img src="@image.ImageUrl" class="img-fluid" style="max-width: 100px; max-height: 100px; border-radius:5px; border:1px solid #bbb9b9" />
+                                        <a asp-action="DeleteImage" class="btn btn-sm btn-danger btn-pill" asp-route-imageId="@image.Id" style="position: absolute; top: 0; right: 0;">Delete</a>
+                                    </div>
+                                }
+                            }
+                            <div id="imagePreviewContainer"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-
         </form>
-
-
-
-
-
     </div>
-
 </div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('imageFilesInput').addEventListener('change', function (e) {
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const previewCardBody = document.getElementById('imagePreviewCardBody');
+            const fileTypeError = document.getElementById('fileTypeError');
+            previewContainer.innerHTML = '';
+            fileTypeError.classList.add('d-none');
 
+            let files = e.target.files;
+            let filesArray = Array.from(files);
 
+            filesArray.forEach((file, index) => {
+                const reader = new FileReader();
 
+                reader.onload = function (event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '100px';
+                    img.className = 'img-thumbnail mt-2';
+
+                    const imgWrapper = document.createElement('div');
+                    imgWrapper.className = 'img-wrapper position-relative d-inline-block mr-2 mb-2';
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.type = 'button';
+                    deleteButton.className = 'btn btn-danger btn-sm btn-pill position-absolute';
+                    deleteButton.style.top = '10px';
+                    deleteButton.style.right = '10px';
+                    deleteButton.innerHTML = 'Delete';
+
+                    deleteButton.addEventListener('click', function () {
+                        filesArray = filesArray.filter((_, i) => i !== index);
+                        const dataTransfer = new DataTransfer();
+                        filesArray.forEach((file) => dataTransfer.items.add(file));
+                        document.getElementById('imageFilesInput').files = dataTransfer.files;
+                        imgWrapper.remove();
+                    });
+
+                    imgWrapper.appendChild(img);
+                    imgWrapper.appendChild(deleteButton);
+                    previewContainer.appendChild(imgWrapper);
+                };
+
+                // Validate file type
+                if (file.type.match('image/*')) {
+                    reader.readAsDataURL(file);
+                } else {
+                    fileTypeError.classList.remove('d-none');
+                }
+            });
+
+            if (filesArray.length > 0) {
+                previewContainer.classList.remove('d-none');
+                previewCardBody.appendChild(previewContainer);
+            } else {
+                previewContainer.classList.add('d-none');
+            }
+        });
+    </script>
+}
+
+<style>
+    .btn-pill {
+        border-radius: 50px;
+    }
+</style>
