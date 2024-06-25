@@ -56,7 +56,7 @@ namespace Plan_A_Plant.Areas.User.Controllers
         {
             try
             {
-                // Get all products
+                
                 IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category,ProductImages");
 
                 // Filter by category if provided
