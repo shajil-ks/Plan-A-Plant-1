@@ -594,11 +594,16 @@ namespace Plan_A_Plant.Areas.User.Controllers
         {
             try
             {
-                var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId);
+                var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId, includeProperties: "Product");
                 if (cartFromDb == null)
                 {
-                    
                     return NotFound();
+                }
+
+                if (cartFromDb.Count + 1 > cartFromDb.Product.Qty)
+                {
+                    TempData["error"] = "Quantity exceeds available stock.";
+                    return RedirectToAction(nameof(Index));
                 }
 
                 cartFromDb.Count += 1;
@@ -608,17 +613,17 @@ namespace Plan_A_Plant.Areas.User.Controllers
             }
             catch (Exception ex)
             {
-                
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
+
 
 
         public IActionResult Minus(int cartId)
         {
             try
             {
-                var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId);
+                var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ShopCartId == cartId, includeProperties: "Product");
                 if (cartFromDb == null)
                 {
                     // Handle the case where the cart item is not found
