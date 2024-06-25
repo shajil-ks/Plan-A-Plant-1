@@ -141,7 +141,7 @@
                                     <div class="p-lg-1 text-center">
                                         <span class="text-success h5">&#x20b9 @product.DiscountedPrice</span>
                                         <span class="text-muted text-decoration-line-through ms-2">@product.Price.ToString("c", new System.Globalization.CultureInfo("en-IN"))</span>
-                                        <span class="text-danger ms-2">(@((int)((product.Price - product.DiscountedPrice) / product.Price * 100))% off)</span>
+                                        <span class="text-danger ms-2">(@((float)((product.Price - product.DiscountedPrice) / product.Price * 100))% off)</span>
                                     </div>
                                 }
                                 else
