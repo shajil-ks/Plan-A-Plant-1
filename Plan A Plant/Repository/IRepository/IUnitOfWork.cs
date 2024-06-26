@@ -21,6 +21,8 @@
         IOfferRepository Offer { get; } 
 
         IMultipleAddressRepository MultipleAddress { get; } 
+
+        IWalletTransactionRepository WalletTransaction { get; }
        
         void Save();
     }

@@ -246,6 +246,18 @@ namespace Plan_A_Plant.Areas.User.Controllers
                     _unitOfWork.ApplicationUser.Update(user);
                     _unitOfWork.Save();
 
+                    WalletTransaction walletTransaction = new WalletTransaction
+                    {
+                        UserId = userId,
+                        TransactionDate = DateTime.Now,
+                        Amount = ShoppingCartVM.OrderHeader.OrderTotal,
+                        Type = TransactionType.Debit, // Since it's a payment, it's a debit
+                        TransactionMode=SD.PaymentMethodWallet
+                    };
+
+                    _unitOfWork.WalletTransaction.Add(walletTransaction);
+                    _unitOfWork.Save();
+
                     ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusApproved;
                     ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
                     _unitOfWork.OrderHeader.Add(ShoppingCartVM.OrderHeader);

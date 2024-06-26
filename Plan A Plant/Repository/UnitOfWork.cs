@@ -26,6 +26,8 @@ namespace Plan_A_Plant.Repository
 
         public IMultipleAddressRepository MultipleAddress { get; private set; } 
 
+        public IWalletTransactionRepository WalletTransaction { get; private set; } 
+
         public UnitOfWork(ApplicationDbContext db) 
         {
             _db = db;
@@ -39,7 +41,8 @@ namespace Plan_A_Plant.Repository
             WishList = new WishListRepository(_db); 
             Coupon = new CouponRepository(_db);
             Offer = new OfferRepository(_db);
-            MultipleAddress = new MultipleAddressRepository(_db);   
+            MultipleAddress = new MultipleAddressRepository(_db); 
+            WalletTransaction = new WalletTransactionRepository(_db);   
             
         }
         

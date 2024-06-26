@@ -397,7 +397,20 @@ namespace Plan_A_Plant.Areas.User.Controllers
                     // Update wallet amount
                     int walletAmount = Convert.ToInt32(TempData["WalletAmount"]);
                     UserObj.Wallet += walletAmount;
+
+                    WalletTransaction walletTransaction = new WalletTransaction
+                    {
+                        UserId = UserObj.Id,
+                        TransactionDate = DateTime.Now,
+                        Amount = walletAmount,
+                        Type = TransactionType.Credit, 
+                        TransactionMode = "Stripe" 
+                    };
+
                     _unitOfWork.ApplicationUser.Update(UserObj);
+                    _unitOfWork.Save();
+
+                    _unitOfWork.WalletTransaction.Add(walletTransaction);
                     _unitOfWork.Save();
 
                     // Clear session ID and payment intent ID

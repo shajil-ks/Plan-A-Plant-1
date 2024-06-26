@@ -1,0 +1,120 @@
+﻿@model List<Plan_A_Plant.Models.WalletTransaction>
+
+@{
+    ViewData["Title"] = "Wallet History";
+    var serialNumber = 1;
+}
+
+<h2 class="text-center">@ViewData["Title"]</h2>
+
+<table id="walletTable" class="table table-hover table-bordered table-striped table-sm table-responsive-sm">
+    <thead class="thead-dark">
+        <tr>
+            <th>Si. No.</th>
+            <th onclick="sortTable(1)">
+                Transaction Date/Time
+                <span class="sort-icons">&#9650;&#9660;</span>
+            </th>
+            <th onclick="sortTable(2)">
+                Amount
+                <span class="sort-icons">&#9650;&#9660;</span>
+            </th>
+            <th onclick="sortTable(3)">
+                Transaction Type
+                <span class="sort-icons">&#9650;&#9660;</span>
+            </th>
+            <th onclick="sortTable(4)">
+                Transaction Mode
+                <span class="sort-icons">&#9650;&#9660;</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in Model)
+        {
+            <tr>
+                <td>@serialNumber</td>
+                <td>@transaction.TransactionDate.ToString("dd-MM-yyyy HH:mm")</td>
+                <td>@transaction.Amount</td>
+                <td style="color:@(transaction.Type == Plan_A_Plant.Models.TransactionType.Credit ? "green" : "red")">
+                    @transaction.Type.ToString()
+                </td>
+                <td>@transaction.TransactionMode</td>
+            </tr>
+            serialNumber++;
+        }
+    </tbody>
+</table>
+
+<style>
+    .table {
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+        .table th {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+            .table th .sort-icons {
+                font-size: 12px;
+                margin-left: 5px;
+            }
+
+        .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    h2 {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    .ascending::after {
+        content: " \2191"; /* Up arrow */
+    }
+
+    .descending::after {
+        content: " \2193"; /* Down arrow */
+    }
+</style>
+
+<script>
+    function sortTable(columnIndex) {
+        const table = document.getElementById("walletTable");
+        const rows = Array.from(table.rows).slice(1); // Skip the header row
+        const direction = table.getAttribute("data-sort-direction") || "asc";
+
+        const sortedRows = rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[columnIndex].innerText.trim();
+            const cellB = rowB.cells[columnIndex].innerText.trim();
+
+            if (!isNaN(cellA) && !isNaN(cellB)) {
+                // Numeric comparison
+                return direction === "asc" ? cellA - cellB : cellB - cellA;
+            } else {
+                // String comparison
+                return direction === "asc" ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            }
+        });
+
+        table.setAttribute("data-sort-direction", direction === "asc" ? "desc" : "asc");
+
+        sortedRows.forEach(row => table.tBodies[0].appendChild(row));
+    }
+
+    // Add event listeners to headers for sorting
+    document.querySelectorAll("#walletTable th").forEach((header, index) => {
+        header.addEventListener("click", () => sortTable(index));
+    });
+</script>

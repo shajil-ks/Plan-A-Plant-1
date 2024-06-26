@@ -189,6 +189,17 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
                         {
                             user.Wallet += (int)orderHeader.OrderTotal;
                             _unitOfWork.ApplicationUser.Update(user);
+
+                            // WalletTransaction
+                            WalletTransaction walletTransaction = new WalletTransaction
+                            {
+                                UserId = user.Id,
+                                TransactionDate = DateTime.Now,
+                                Amount = orderHeader.OrderTotal,
+                                Type = TransactionType.Credit, 
+                                TransactionMode = "Refund" 
+                            };
+                            _unitOfWork.WalletTransaction.Add(walletTransaction);
                         }
 
                     }
@@ -250,6 +261,17 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
                         {
                             user.Wallet += (int)orderHeader.OrderTotal;
                             _unitOfWork.ApplicationUser.Update(user);
+
+                            // WalletTransaction
+                            WalletTransaction walletTransaction = new WalletTransaction
+                            {
+                                UserId = user.Id,
+                                TransactionDate = DateTime.Now,
+                                Amount = orderHeader.OrderTotal,
+                                Type = TransactionType.Credit,
+                                TransactionMode = "Refund"
+                            };
+                            _unitOfWork.WalletTransaction.Add(walletTransaction);
                         }
                     }
 

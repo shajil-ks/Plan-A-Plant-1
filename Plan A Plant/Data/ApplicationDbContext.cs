@@ -30,6 +30,8 @@ namespace Plan_A_Plant.Data
 
         public DbSet<MultipleAddress> MultipleAddresses { get; set; }   
 
+        public DbSet<WalletTransaction> WalletTransactions { get; set; }        
+
         //to seed data to caterory
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {       

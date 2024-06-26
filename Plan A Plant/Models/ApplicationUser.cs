@@ -28,7 +28,6 @@ namespace Plan_A_Plant.Models
 
         public string UsedCoupons { get; set; }
 
-
-
+        
     }
 }

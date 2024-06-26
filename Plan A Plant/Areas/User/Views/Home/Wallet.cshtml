@@ -1,4 +1,4 @@
-﻿@model ApplicationUser
+﻿@model Plan_A_Plant.Models.ApplicationUser
 
 @section css {
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
@@ -51,6 +51,7 @@
                         </form>
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="https://localhost:7208/User/Home/UserProfile" class="text-muted">Go back</a>
+                            <a asp-area="User" asp-controller="Wallet" asp-action="Index" class="btn btn-primary btn-sm">Wallet History</a>
                         </div>
                     </div>
                 </div>
