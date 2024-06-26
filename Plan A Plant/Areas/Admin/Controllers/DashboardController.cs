@@ -130,26 +130,53 @@ namespace Plan_A_Plant.Areas.Admin.Controllers
 
 
 
+        //public IActionResult Invoice()
+        //{
+        //    IEnumerable<OrderHeader> orderHeaders = _unitOfWork.OrderHeader.GetAll(includeProperties: "ApplicationUser");
+        //    DateTime today = DateTime.Now;
+        //    DateTime lastWeek = today.AddDays(-7);
+
+        //    IEnumerable<OrderHeader> ordersLastWeek = orderHeaders.Where(order => order.OrderDate >= lastWeek && order.OrderDate <= today).OrderByDescending(order => order.OrderDate);
+        //    double totalRevenueLastWeek = (double)ordersLastWeek.Sum(order => order.OrderTotal);
+        //    int cancelledCount = ordersLastWeek.Count(u => u.OrderStatus == "Cancelled");
+        //    int orderCount = ordersLastWeek.Count();
+        //    var viewModel = new DashboardVM
+        //    {
+        //        orderHeader = ordersLastWeek,
+        //        TotalRevenueLastWeek = totalRevenueLastWeek,
+        //        CancelledCount = cancelledCount,
+        //        OrderCount = orderCount
+
+        //    };
+        //    return View(viewModel);
+        //}
+
         public IActionResult Invoice()
         {
+            // Retrieve all OrderHeader records including related ApplicationUser data
             IEnumerable<OrderHeader> orderHeaders = _unitOfWork.OrderHeader.GetAll(includeProperties: "ApplicationUser");
-            DateTime today = DateTime.Now;
-            DateTime lastWeek = today.AddDays(-7);
 
-            IEnumerable<OrderHeader> ordersLastWeek = orderHeaders.Where(order => order.OrderDate >= lastWeek && order.OrderDate <= today).OrderByDescending(order => order.OrderDate);
-            double totalRevenueLastWeek = (double)ordersLastWeek.Sum(order => order.OrderTotal);
-            int cancelledCount = ordersLastWeek.Count(u => u.OrderStatus == "Cancelled");
-            int orderCount = ordersLastWeek.Count();
+            // Calculate total revenue from all orders
+            double totalRevenue = (double)orderHeaders.Sum(order => order.OrderTotal);
+
+            // Count the number of cancelled orders
+            int cancelledCount = orderHeaders.Count(order => order.OrderStatus == "Cancelled");
+
+            // Count the total number of orders
+            int orderCount = orderHeaders.Count();
+
+            // Create and populate the DashboardVM with all orders and calculated statistics
             var viewModel = new DashboardVM
             {
-                orderHeader = ordersLastWeek,
-                TotalRevenueLastWeek = totalRevenueLastWeek,
-                CancelledCount = cancelledCount,
-                OrderCount = orderCount
-
+                orderHeader = orderHeaders,      
+                TotalRevenueLastWeek = totalRevenue, 
+                OrderCount = orderCount              
             };
+
             return View(viewModel);
         }
+
+
 
 
         [HttpPost]
